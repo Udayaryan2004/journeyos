@@ -23,6 +23,35 @@ export interface TurnInput {
   inputMode: "text" | "voice";
 }
 
+/**
+ * Is this failure a configuration problem rather than a transient one?
+ * 401 invalid key, 403 no access, 404 unknown model, and 429 with an
+ * insufficient_quota body all mean "this key will never work as set up".
+ * A plain 429 rate limit is transient and must NOT match.
+ */
+function isKeyUnusable(err: unknown): boolean {
+  const e = err as { status?: number; code?: string; type?: string; error?: { type?: string; code?: string } };
+  const status = e?.status;
+  const type = e?.type ?? e?.error?.type;
+  const code = e?.code ?? e?.error?.code;
+  if (status === 401 || status === 403 || status === 404) return true;
+  if (status === 429) {
+    return type === "insufficient_quota" || code === "credit_balance_exhausted" || code === "insufficient_quota";
+  }
+  return false;
+}
+
+function keyProblem(err: unknown): string {
+  const e = err as { status?: number; error?: { type?: string; code?: string } };
+  const code = e?.error?.code ?? e?.error?.type;
+  if (code === "credit_balance_exhausted" || code === "insufficient_quota") {
+    return "Your OpenAI key has no credit left, so I'm planning without the model for now. Everything still works — add credit and restart to switch back.";
+  }
+  if (e?.status === 401) return "That OpenAI key was rejected, so I'm planning without the model for now.";
+  if (e?.status === 404) return "That model isn't available on your OpenAI account, so I'm planning without it for now.";
+  return "The model is unavailable, so I'm planning without it for now.";
+}
+
 /** Recent turns, oldest first. The trip state object carries the rest. */
 async function loadHistory(conversationId: string, limit = 14): Promise<Msg[]> {
   const rows = await q<{ role: string; content: string | null }>(
@@ -86,20 +115,42 @@ export async function* runTurn(input: TurnInput): AsyncGenerator<ChatEvent> {
 
   let totalCost = 0, tokensIn = 0, tokensOut = 0;
   let finalText = "";
+  let producedOutput = false;
   const allToolCalls: { name: string; args: string }[] = [];
 
   try {
     for (let iteration = 0; iteration < AI_MAX_TOOL_ITERATIONS; iteration++) {
-      const stream = await openai().chat.completions.create({
-        model: MODELS.planner,
-        messages,
-        tools: TOOL_DEFS,
-        tool_choice: "auto",
-        temperature: 0.6,
-        max_tokens: 2000,
-        stream: true,
-        stream_options: { include_usage: true },
-      });
+      let stream;
+      try {
+        stream = await openai().chat.completions.create({
+          model: MODELS.planner,
+          messages,
+          tools: TOOL_DEFS,
+          tool_choice: "auto",
+          temperature: 0.6,
+          max_tokens: 2000,
+          stream: true,
+          stream_options: { include_usage: true },
+        });
+      } catch (err) {
+        /*
+         * A configured-but-unusable key (no billing credit, revoked, or a model
+         * the account cannot reach) would otherwise leave the user worse off
+         * than having no key at all. Degrade to the deterministic planner
+         * instead of failing the turn -- but only before anything has streamed,
+         * so the user never sees two half-answers stitched together.
+         */
+        if (!producedOutput && isKeyUnusable(err)) {
+          yield {
+            type: "error",
+            code: "AI_KEY_UNUSABLE",
+            message: keyProblem(err),
+          };
+          yield* runFallbackTurn(input, persistMessage);
+          return;
+        }
+        throw err;
+      }
 
       let content = "";
       const pending = new Map<number, PendingCall>();
@@ -116,6 +167,7 @@ export async function* runTurn(input: TurnInput): AsyncGenerator<ChatEvent> {
 
         if (choice.delta?.content) {
           content += choice.delta.content;
+          producedOutput = true;
           yield { type: "token", text: choice.delta.content };
         }
 
