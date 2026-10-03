@@ -24,9 +24,9 @@ type SpeechRecognizerCtor = new () => SpeechRecognizer;
 
 export function Brand({ href = "/" }: { href?: string }) {
   return (
-    <Link href={href} className="flex items-center gap-2.5 font-semibold tracking-tight">
+    <Link href={href} className="flex min-w-0 shrink items-center gap-2.5 font-semibold tracking-tight">
       <span
-        className="grid h-7 w-7 place-items-center rounded-[9px] text-sm font-extrabold"
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-[9px] text-sm font-extrabold"
         style={{
           background: "linear-gradient(135deg, var(--accent-from), var(--accent-to))",
           color: "#0a0b0f",
@@ -35,7 +35,9 @@ export function Brand({ href = "/" }: { href?: string }) {
       >
         J
       </span>
-      <span>
+      {/* below ~360px the wordmark is what pushes the action buttons off-screen,
+          so the mark carries the brand on its own there */}
+      <span className="hidden truncate min-[360px]:inline">
         Journey<span className="grad-text">OS</span>
       </span>
     </Link>
@@ -84,7 +86,7 @@ export function ThemeToggle() {
 export function TopBar({ right, children }: { right?: ReactNode; children?: ReactNode }) {
   return (
     <header
-      className="no-print sticky top-0 z-50 flex items-center gap-3 border-b px-4 py-2.5 sm:px-6"
+      className="no-print sticky top-0 z-50 flex w-full min-w-0 items-center gap-2 border-b px-3 py-2.5 sm:gap-3 sm:px-6"
       style={{
         borderColor: "var(--border)",
         background: "color-mix(in srgb, var(--bg) 80%, transparent)",
@@ -93,9 +95,11 @@ export function TopBar({ right, children }: { right?: ReactNode; children?: Reac
     >
       <Brand />
       {children}
-      <div className="flex-1" />
-      {right}
-      <ThemeToggle />
+      <div className="min-w-0 flex-1" />
+      <div className="flex shrink-0 items-center gap-1.5">
+        {right}
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

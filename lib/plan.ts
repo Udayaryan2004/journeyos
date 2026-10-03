@@ -11,7 +11,8 @@ import type { FlightOffer, HotelOffer, ItineraryItem, Trip, TripState } from "@/
 export interface TripRow {
   id: string; user_id: string; title: string;
   destination_city: string | null; destination_country: string | null;
-  origin_city: string | null; start_date: Date | null; end_date: Date | null;
+  // DATE columns arrive as 'YYYY-MM-DD' strings -- see the type parser in lib/db.ts
+  origin_city: string | null; start_date: string | null; end_date: string | null;
   duration_days: number | null; party_adults: number; party_children: number[];
   budget_total: string | null; currency: string; pace: Trip["pace"];
   interests: string[]; hotel_tier: Trip["hotelTier"]; assumptions: string[];
@@ -19,7 +20,9 @@ export interface TripRow {
   created_at: Date; updated_at: Date;
 }
 
-const iso = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
+/** Dates are already 'YYYY-MM-DD'; timestamps still arrive as Date. */
+const iso = (d: Date | string | null): string | null =>
+  d == null ? null : typeof d === "string" ? d.slice(0, 10) : d.toISOString().slice(0, 10);
 
 export function toTrip(r: TripRow): Trip {
   return {
@@ -366,7 +369,7 @@ export async function loadItinerary(tripId: string): Promise<ItineraryItem[]> {
     id: r.id as string,
     tripId: r.trip_id as string,
     dayNumber: r.day_number as number,
-    date: r.item_date ? (r.item_date as Date).toISOString().slice(0, 10) : null,
+    date: iso(r.item_date as string | Date | null),
     slot: r.slot as ItineraryItem["slot"],
     sortOrder: r.sort_order as number,
     type: r.item_type as ItineraryItem["type"],

@@ -910,7 +910,9 @@ function Workspace() {
         right: 0,
         bottom: 0,
         zIndex: 60,
-        height: "88vh",
+        // dvh, so the sheet is not cut off by mobile browser chrome
+        height: "88dvh",
+        maxWidth: "100vw",
         transform: sheetOpen ? "translateY(0)" : "translateY(calc(100% - 64px))",
         transition: "transform 0.34s cubic-bezier(0.2, 0.7, 0.3, 1)",
         background: "var(--bg-elev)",
@@ -931,13 +933,16 @@ function Workspace() {
   /* ------------------------------------------------------------------ view */
 
   return (
+    // minmax(0, 1fr) rather than 1fr: a grid track defaults to min-width:auto,
+    // so a wide child (a long assumptions line, a price row) pushes the track
+    // past the viewport and nothing can scroll it back. Same reason for min-w-0.
     <div
-      className="relative h-[100dvh] overflow-hidden lg:grid lg:h-[calc(100vh-0px)] lg:grid-cols-[minmax(360px,38%)_1fr] lg:overflow-visible"
+      className="relative h-[100dvh] overflow-hidden lg:grid lg:h-[calc(100vh-0px)] lg:grid-cols-[minmax(300px,36%)_minmax(0,1fr)] lg:overflow-visible"
       style={rootStyle}
     >
       {/* ---------------------------------------------------------- chat */}
       <section
-        className="no-print flex h-full min-h-0 flex-col"
+        className="no-print flex h-full min-h-0 min-w-0 flex-col"
         style={{ paddingBottom: asSheet ? 64 : 0 }}
       >
         <header
@@ -1050,7 +1055,7 @@ function Workspace() {
       {/* ------------------------------------------------------- artifact */}
       <aside
         id="trip-artifact"
-        className={`flex min-h-0 flex-col${sheetOpen ? " open" : ""}`}
+        className={`flex min-h-0 min-w-0 flex-col${sheetOpen ? " open" : ""}`}
         style={paneStyle}
       >
         {asSheet ? (
@@ -1155,13 +1160,13 @@ function Workspace() {
         </div>
 
         <div
-          className="min-h-0 flex-1 px-3 py-4 sm:px-4"
+          className="min-h-0 min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-4"
           style={scrollStyle}
           role="tabpanel"
           id={`panel-${tab}`}
           aria-labelledby={`tab-${tab}`}
         >
-          <div key={tab} className="mx-auto max-w-[760px] fade-up">
+          <div key={tab} className="mx-auto w-full max-w-[760px] min-w-0 fade-up">
             {artifactError ? (
               <div className="mb-3">
                 <ErrorNote>{artifactError}</ErrorNote>
@@ -2339,7 +2344,9 @@ function EssentialsTab({
   const fx = essentials.currency;
 
   return (
-    <div className="grid gap-3 xl:grid-cols-2">
+    // auto-fit tracks respond to the PANE's width; an xl: breakpoint reads the
+    // viewport, so a wide window forced two columns into a narrow artifact pane
+    <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(248px,1fr))]">
       {/* ------------------------------------------------------- weather */}
       <Panel
         title="Weather"

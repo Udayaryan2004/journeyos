@@ -1,4 +1,16 @@
-import { Pool, type QueryResultRow } from "pg";
+import { Pool, types, type QueryResultRow } from "pg";
+
+/*
+ * Return DATE columns as plain 'YYYY-MM-DD' strings.
+ *
+ * By default node-postgres turns a DATE into a Date at LOCAL midnight, so
+ * calling .toISOString() on it subtracts the UTC offset and lands on the
+ * previous day east of Greenwich -- in IST a trip starting 7 April rendered
+ * its first day as 6 April. A calendar date has no timezone; treating it as
+ * text is the only representation that cannot drift.
+ */
+const PG_DATE_OID = 1082;
+types.setTypeParser(PG_DATE_OID, (value: string) => value);
 
 const globalForDb = globalThis as unknown as { __jospool?: Pool };
 
