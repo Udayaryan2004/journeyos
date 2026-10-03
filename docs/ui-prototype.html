@@ -1,0 +1,1704 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JourneyOS — UI Prototype</title>
+<meta name="description" content="High-fidelity interactive UI prototype for JourneyOS, the AI travel operating system.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   JourneyOS — Design tokens
+   ============================================================ */
+:root{
+  --bg:#0A0B0F;
+  --bg-elev:#101219;
+  --surface:rgba(255,255,255,.045);
+  --surface-2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.09);
+  --border-strong:rgba(255,255,255,.16);
+  --text-1:#F4F5F7;
+  --text-2:#9BA1B0;
+  --text-3:#6B7280;
+  --accent-from:#8B5CF6;
+  --accent-to:#22D3EE;
+  --accent:#8B5CF6;
+  --accent-soft:rgba(139,92,246,.14);
+  --good:#34D399;
+  --good-soft:rgba(52,211,153,.13);
+  --warn:#FBBF24;
+  --warn-soft:rgba(251,191,36,.13);
+  --crit:#F87171;
+  --crit-soft:rgba(248,113,113,.13);
+  --r-sm:10px; --r-md:14px; --r-lg:18px; --r-pill:999px;
+  --sp:8px;
+  --shadow:0 18px 50px -12px rgba(0,0,0,.6);
+  --mesh-1:rgba(139,92,246,.22);
+  --mesh-2:rgba(34,211,238,.16);
+  --mesh-3:rgba(236,72,153,.10);
+}
+:root[data-theme="light"]{
+  --bg:#FAFAFC;
+  --bg-elev:#FFFFFF;
+  --surface:rgba(15,17,26,.028);
+  --surface-2:rgba(15,17,26,.055);
+  --border:rgba(15,17,26,.10);
+  --border-strong:rgba(15,17,26,.18);
+  --text-1:#0F111A;
+  --text-2:#5C6475;
+  --text-3:#8A91A0;
+  --accent-soft:rgba(139,92,246,.10);
+  --good-soft:rgba(16,150,110,.11);
+  --good:#0F9B6C;
+  --warn:#B07400;
+  --warn-soft:rgba(176,116,0,.11);
+  --crit:#D93A3A;
+  --crit-soft:rgba(217,58,58,.10);
+  --shadow:0 18px 44px -16px rgba(15,17,26,.18);
+  --mesh-1:rgba(139,92,246,.14);
+  --mesh-2:rgba(34,211,238,.12);
+  --mesh-3:rgba(236,72,153,.07);
+}
+
+/* ============================================================
+   Reset & base
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--text-1);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px; line-height:1.55; letter-spacing:-.011em;
+  min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0; line-height:1.18; letter-spacing:-.025em; font-weight:600}
+p{margin:0}
+button{font:inherit; color:inherit; border:0; background:none; cursor:pointer}
+a{color:inherit; text-decoration:none}
+ul{margin:0; padding:0; list-style:none}
+input,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent-to); outline-offset:2px; border-radius:6px}
+::selection{background:var(--accent-soft)}
+
+.bg-mesh{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 12% -5%, var(--mesh-1), transparent 60%),
+    radial-gradient(800px 560px at 92% 8%, var(--mesh-2), transparent 62%),
+    radial-gradient(700px 500px at 50% 105%, var(--mesh-3), transparent 60%);
+}
+
+/* ============================================================
+   Primitives
+   ============================================================ */
+.glass{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+}
+.grad-text{
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; justify-content:center;
+  padding:11px 18px; border-radius:var(--r-sm); font-weight:550; font-size:14.5px;
+  background:var(--surface-2); border:1px solid var(--border);
+  transition:transform .15s ease, background .15s ease, border-color .15s ease;
+  min-height:44px; white-space:nowrap;
+}
+.btn:hover{background:var(--surface); border-color:var(--border-strong); transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to));
+  color:#0A0B0F; border:0; font-weight:650;
+  box-shadow:0 8px 24px -8px rgba(139,92,246,.6);
+}
+.btn-primary:hover{filter:brightness(1.07); background:linear-gradient(104deg,var(--accent-from),var(--accent-to))}
+.btn-ghost{background:transparent; border-color:transparent; color:var(--text-2)}
+.btn-ghost:hover{background:var(--surface); color:var(--text-1)}
+.btn-sm{padding:8px 13px; font-size:13.5px; min-height:36px}
+.chip{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:8px 14px; border-radius:var(--r-pill); font-size:13.5px; font-weight:480;
+  background:var(--surface); border:1px solid var(--border); color:var(--text-1);
+  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+}
+button.chip:hover{border-color:var(--accent); background:var(--accent-soft); transform:translateY(-1px)}
+.tag{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:var(--r-pill);
+  font-size:11.5px; font-weight:600; letter-spacing:.01em;
+  background:var(--surface-2); color:var(--text-2); border:1px solid var(--border);
+}
+.tag.good{background:var(--good-soft); color:var(--good); border-color:transparent}
+.tag.warn{background:var(--warn-soft); color:var(--warn); border-color:transparent}
+.tag.crit{background:var(--crit-soft); color:var(--crit); border-color:transparent}
+.tag.ai{background:var(--accent-soft); color:var(--accent-to); border-color:transparent}
+.muted{color:var(--text-2)}
+.tiny{font-size:12.5px}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   Top bar
+   ============================================================ */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:14px;
+  padding:12px 24px;
+  background:color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex; align-items:center; gap:10px; font-weight:650; font-size:16px; letter-spacing:-.03em}
+.brand-mark{
+  width:28px; height:28px; border-radius:9px; flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent-from),var(--accent-to));
+  display:grid; place-items:center; color:#0A0B0F; font-weight:800; font-size:14px;
+  box-shadow:0 6px 18px -6px rgba(139,92,246,.7);
+}
+.topbar .spacer{flex:1}
+.navlinks{display:flex; gap:2px}
+.navlink{
+  padding:7px 13px; border-radius:var(--r-sm); font-size:13.5px; font-weight:480; color:var(--text-2);
+  transition:background .15s, color .15s;
+}
+.navlink:hover{background:var(--surface); color:var(--text-1)}
+.navlink.on{background:var(--surface-2); color:var(--text-1)}
+.icon-btn{
+  width:38px; height:38px; display:grid; place-items:center; border-radius:var(--r-sm);
+  border:1px solid var(--border); background:var(--surface); transition:background .15s, transform .15s;
+}
+.icon-btn:hover{background:var(--surface-2); transform:translateY(-1px)}
+.kbd{
+  font-size:11px; font-weight:600; padding:3px 7px; border-radius:6px;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);
+}
+
+/* ============================================================
+   Views
+   ============================================================ */
+.view{display:none; animation:viewIn .45s cubic-bezier(.2,.7,.3,1)}
+.view.active{display:block}
+@keyframes viewIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px}
+.wrap-narrow{max-width:760px; margin:0 auto; padding:0 24px}
+
+/* ---------- Landing ---------- */
+.hero{padding:76px 0 56px; text-align:center}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:22px;
+  padding:6px 14px 6px 8px; border-radius:var(--r-pill);
+  background:var(--surface); border:1px solid var(--border); font-size:13px; color:var(--text-2);
+}
+.eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--good); box-shadow:0 0 0 3px var(--good-soft)}
+.hero h1{
+  font-family:'Fraunces',Georgia,serif; font-weight:600;
+  font-size:clamp(38px,6.4vw,66px); line-height:1.04; letter-spacing:-.035em;
+  margin-bottom:20px;
+}
+.hero .sub{font-size:clamp(16px,2.1vw,19px); color:var(--text-2); max-width:620px; margin:0 auto 36px}
+
+.composer-shell{max-width:720px; margin:0 auto; position:relative}
+.composer-glow{
+  position:absolute; inset:-2px; border-radius:20px; z-index:0; opacity:0;
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to));
+  filter:blur(16px); transition:opacity .3s ease;
+}
+.composer-shell:focus-within .composer-glow{opacity:.45}
+.composer{
+  position:relative; z-index:1;
+  display:flex; align-items:flex-end; gap:10px; padding:12px 12px 12px 18px;
+  background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-lg);
+  box-shadow:var(--shadow);
+}
+.composer textarea{
+  flex:1; border:0; background:none; resize:none; outline:none;
+  font-size:16px; line-height:1.5; padding:11px 0; max-height:140px; min-height:46px;
+}
+.composer textarea::placeholder{color:var(--text-3)}
+.mic{
+  width:42px; height:42px; border-radius:var(--r-sm); flex:0 0 auto;
+  display:grid; place-items:center; border:1px solid var(--border); background:var(--surface);
+  transition:all .18s ease;
+}
+.mic:hover{background:var(--surface-2)}
+.mic.rec{background:var(--crit-soft); border-color:var(--crit); color:var(--crit)}
+.send{
+  width:42px; height:42px; border-radius:var(--r-sm); flex:0 0 auto; display:grid; place-items:center;
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to)); color:#0A0B0F;
+  box-shadow:0 6px 18px -8px rgba(139,92,246,.8); transition:transform .15s, filter .15s;
+}
+.send:hover{transform:translateY(-1px); filter:brightness(1.08)}
+.wave{display:flex; align-items:center; gap:3px; height:18px}
+.wave i{display:block; width:2.5px; border-radius:2px; background:currentColor; animation:wv .9s ease-in-out infinite}
+.wave i:nth-child(1){height:6px;  animation-delay:0s}
+.wave i:nth-child(2){height:13px; animation-delay:.1s}
+.wave i:nth-child(3){height:18px; animation-delay:.2s}
+.wave i:nth-child(4){height:10px; animation-delay:.3s}
+.wave i:nth-child(5){height:5px;  animation-delay:.4s}
+@keyframes wv{0%,100%{transform:scaleY(.4)} 50%{transform:scaleY(1)}}
+
+.prompt-row{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:22px}
+.prompt-row .chip{animation:chipIn .5s cubic-bezier(.2,.7,.3,1) backwards}
+@keyframes chipIn{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+.trio{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:48px 0}
+.feat{padding:24px; border-radius:var(--r-lg)}
+.feat .ic{
+  width:38px; height:38px; border-radius:11px; display:grid; place-items:center; margin-bottom:14px;
+  background:var(--accent-soft); color:var(--accent-to); font-size:18px;
+}
+.feat h3{font-size:16px; margin-bottom:6px}
+.feat p{font-size:14px; color:var(--text-2)}
+
+.section-head{text-align:center; padding:40px 0 24px}
+.section-head h2{font-size:clamp(24px,3.4vw,34px); margin-bottom:8px; font-family:'Fraunces',serif; font-weight:600}
+.section-head p{color:var(--text-2)}
+
+.pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding-bottom:64px}
+.price-card{padding:26px; border-radius:var(--r-lg); position:relative}
+.price-card.feature{border-color:var(--accent); background:var(--accent-soft)}
+.price-card .amt{font-size:34px; font-weight:650; letter-spacing:-.04em; margin:10px 0 4px}
+.price-card .amt span{font-size:14px; font-weight:450; color:var(--text-2); letter-spacing:0}
+.price-card ul{margin:18px 0 22px; display:grid; gap:9px}
+.price-card li{font-size:13.5px; color:var(--text-2); display:flex; gap:9px}
+.price-card li::before{content:'✓'; color:var(--good); font-weight:700}
+.ribbon{
+  position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  padding:4px 12px; border-radius:var(--r-pill); font-size:11.5px; font-weight:650;
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to)); color:#0A0B0F;
+}
+
+/* ---------- Auth ---------- */
+.auth-wrap{min-height:calc(100vh - 62px); display:grid; place-items:center; padding:40px 20px}
+.auth-card{width:100%; max-width:424px; padding:32px; border-radius:var(--r-lg); box-shadow:var(--shadow)}
+.auth-card h2{font-size:24px; margin-bottom:6px}
+.auth-card .lede{color:var(--text-2); font-size:14px; margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{display:block; font-size:12.5px; font-weight:560; color:var(--text-2); margin-bottom:6px}
+.field input{
+  width:100%; padding:12px 14px; border-radius:var(--r-sm);
+  background:var(--surface); border:1px solid var(--border); outline:none; font-size:15px;
+  transition:border-color .15s, background .15s;
+}
+.field input:focus{border-color:var(--accent); background:var(--surface-2)}
+.meter{height:3px; border-radius:2px; background:var(--surface-2); margin-top:7px; overflow:hidden}
+.meter i{display:block; height:100%; width:68%; border-radius:2px; background:linear-gradient(90deg,var(--warn),var(--good))}
+.divider{display:flex; align-items:center; gap:12px; margin:18px 0; color:var(--text-3); font-size:12.5px}
+.divider::before,.divider::after{content:''; flex:1; height:1px; background:var(--border)}
+.auth-foot{text-align:center; font-size:13.5px; color:var(--text-2); margin-top:18px}
+.auth-foot a{color:var(--accent-to); font-weight:530}
+
+/* ---------- Dashboard ---------- */
+.dash{padding:40px 0 64px}
+.greet{font-size:clamp(26px,3.6vw,34px); font-family:'Fraunces',serif; font-weight:600; margin-bottom:6px}
+.greet-sub{color:var(--text-2); margin-bottom:28px}
+.alert-bar{
+  display:flex; align-items:center; gap:13px; padding:14px 16px; border-radius:var(--r-md);
+  background:var(--crit-soft); border:1px solid rgba(248,113,113,.3); margin-bottom:22px;
+}
+.alert-bar .ic{font-size:17px}
+.alert-bar .txt{flex:1; font-size:14px}
+.alert-bar b{font-weight:620}
+
+.resume{
+  display:flex; align-items:center; gap:16px; padding:16px 18px; border-radius:var(--r-md);
+  margin:26px 0 10px; border:1px solid var(--border); background:var(--surface);
+  transition:border-color .18s, transform .18s; width:100%; text-align:left;
+}
+.resume:hover{border-color:var(--accent); transform:translateY(-1px)}
+.resume .ring{
+  width:44px; height:44px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center;
+  font-size:11.5px; font-weight:680;
+  background:conic-gradient(var(--accent-to) 0 62%, var(--surface-2) 62% 100%);
+}
+.resume .ring span{width:34px; height:34px; border-radius:50%; background:var(--bg); display:grid; place-items:center}
+
+.sect-label{
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12.5px; font-weight:620; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-3); margin:34px 0 14px;
+}
+.trips{display:grid; grid-template-columns:repeat(auto-fill,minmax(248px,1fr)); gap:16px}
+.trip-card{
+  border-radius:var(--r-lg); overflow:hidden; text-align:left; width:100%;
+  border:1px solid var(--border); background:var(--surface);
+  transition:transform .2s cubic-bezier(.2,.7,.3,1), border-color .2s;
+}
+.trip-card:hover{transform:translateY(-3px); border-color:var(--border-strong)}
+.trip-card .cover{height:104px; position:relative; display:grid; place-items:center; font-size:30px}
+.trip-card .cover::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(0,0,0,.28))}
+.trip-card .body{padding:14px 16px 16px}
+.trip-card h4{font-size:15.5px; margin-bottom:3px}
+.trip-card .meta{font-size:12.5px; color:var(--text-2); margin-bottom:10px}
+.trip-card .foot{display:flex; align-items:center; gap:7px}
+
+/* ---------- Workspace ---------- */
+.ws{display:grid; grid-template-columns:minmax(360px,38%) 1fr; height:calc(100vh - 62px)}
+.ws-chat{display:flex; flex-direction:column; border-right:1px solid var(--border); min-width:0}
+.ws-head{
+  display:flex; align-items:center; gap:11px; padding:14px 18px; border-bottom:1px solid var(--border);
+  flex:0 0 auto;
+}
+.ws-head .ttl{flex:1; min-width:0}
+.ws-head h3{font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ws-head .sub{font-size:12px; color:var(--text-2)}
+
+.thread{flex:1; overflow-y:auto; padding:20px 18px 8px; display:flex; flex-direction:column; gap:16px; scroll-behavior:smooth}
+.thread::-webkit-scrollbar{width:9px}
+.thread::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:9px; border:2px solid transparent; background-clip:padding-box}
+.msg{display:flex; gap:11px; animation:msgIn .4s cubic-bezier(.2,.7,.3,1)}
+@keyframes msgIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.msg .av{
+  width:28px; height:28px; border-radius:9px; flex:0 0 auto; display:grid; place-items:center;
+  font-size:12px; font-weight:700;
+}
+.msg.ai .av{background:linear-gradient(135deg,var(--accent-from),var(--accent-to)); color:#0A0B0F}
+.msg.me .av{background:var(--surface-2); color:var(--text-2); border:1px solid var(--border)}
+.bubble{
+  flex:1; min-width:0; font-size:14.5px; line-height:1.62;
+  padding:12px 15px; border-radius:var(--r-md);
+  background:var(--surface); border:1px solid var(--border);
+}
+.msg.me .bubble{background:var(--accent-soft); border-color:rgba(139,92,246,.26)}
+.bubble p+p{margin-top:10px}
+.bubble b{font-weight:620}
+.bubble em{color:var(--text-2); font-style:italic}
+.bubble ol,.bubble ul{margin:9px 0; padding-left:0; display:grid; gap:7px}
+.bubble li{display:flex; gap:9px; align-items:flex-start}
+.bubble ol{counter-reset:n}
+.bubble ol li{counter-increment:n}
+.bubble ol li::before{content:counter(n) '.'; color:var(--accent-to); font-weight:650; flex:0 0 auto}
+.bubble ul li::before{content:'·'; color:var(--accent-to); font-weight:800; flex:0 0 auto}
+.bubble .src{font-size:12px; color:var(--text-3); margin-top:8px}
+.bubble .src a{color:var(--accent-to); border-bottom:1px solid rgba(34,211,238,.3)}
+.bubble table{width:100%; border-collapse:collapse; margin:11px 0; font-size:13px}
+.bubble th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); padding:5px 8px 5px 0; font-weight:620}
+.bubble td{padding:6px 8px 6px 0; border-top:1px solid var(--border)}
+.disclaim{
+  margin-top:10px; padding:8px 11px; border-radius:9px; font-size:12px; color:var(--text-2);
+  background:var(--surface-2); border-left:2px solid var(--warn);
+}
+
+.tool-chip{
+  display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:var(--r-pill);
+  background:var(--surface); border:1px solid var(--border); font-size:13px; width:fit-content;
+  max-width:100%; animation:msgIn .35s ease;
+}
+.tool-chip .spin{
+  width:13px; height:13px; flex:0 0 auto; border-radius:50%;
+  border:2px solid var(--border-strong); border-top-color:var(--accent-to); animation:sp .7s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+.tool-chip.done .spin{border:0; width:auto; height:auto; animation:none}
+.tool-chip.done{color:var(--text-2)}
+.tool-chip .ok{color:var(--good); font-weight:700}
+.tool-chip .warnmark{color:var(--warn); font-weight:700}
+.tool-stack{display:grid; gap:7px; margin-left:39px}
+
+.typing{display:flex; gap:4px; padding:4px 0}
+.typing i{width:6px; height:6px; border-radius:50%; background:var(--text-3); animation:tp 1.3s ease-in-out infinite}
+.typing i:nth-child(2){animation-delay:.18s}
+.typing i:nth-child(3){animation-delay:.36s}
+@keyframes tp{0%,60%,100%{opacity:.25; transform:translateY(0)} 30%{opacity:1; transform:translateY(-4px)}}
+.caret{display:inline-block; width:2px; height:1em; background:var(--accent-to); vertical-align:-2px; animation:bl .9s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+.quick{display:flex; flex-wrap:wrap; gap:8px; margin-left:39px}
+.ws-composer{flex:0 0 auto; padding:14px 18px 18px; border-top:1px solid var(--border)}
+.ws-composer .composer{padding:8px 8px 8px 15px; border-radius:var(--r-md); box-shadow:none; background:var(--surface)}
+.ws-composer textarea{font-size:14.5px; min-height:40px; padding:9px 0}
+.ws-composer .mic,.ws-composer .send{width:36px; height:36px}
+
+/* ---------- Artifact pane ---------- */
+.ws-art{display:flex; flex-direction:column; min-width:0; background:color-mix(in srgb,var(--bg) 60%, transparent)}
+.tabs{display:flex; gap:2px; padding:11px 18px 0; border-bottom:1px solid var(--border); overflow-x:auto; flex:0 0 auto}
+.tabs::-webkit-scrollbar{height:0}
+.tab{
+  padding:9px 14px 12px; font-size:13.5px; font-weight:510; color:var(--text-2);
+  border-bottom:2px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:7px;
+  transition:color .15s;
+}
+.tab:hover{color:var(--text-1)}
+.tab.on{color:var(--text-1); border-bottom-color:var(--accent)}
+.tab .badge{
+  min-width:17px; height:17px; padding:0 5px; border-radius:var(--r-pill); font-size:10.5px; font-weight:700;
+  display:grid; place-items:center; background:var(--surface-2); color:var(--text-2);
+}
+.tab .badge.crit{background:var(--crit); color:#fff}
+.panels{flex:1; overflow-y:auto; padding:20px 18px 40px}
+.panels::-webkit-scrollbar{width:9px}
+.panels::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:9px; border:2px solid transparent; background-clip:padding-box}
+.panel{display:none}
+.panel.on{display:block}
+
+.empty{text-align:center; padding:56px 20px; max-width:380px; margin:0 auto}
+.empty .ic{font-size:34px; margin-bottom:14px; opacity:.5}
+.empty h4{font-size:16px; margin-bottom:7px}
+.empty p{font-size:13.5px; color:var(--text-2)}
+
+.checklist{display:grid; gap:9px; margin-top:20px; text-align:left}
+.checklist li{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--text-2)}
+.checklist .box{
+  width:17px; height:17px; border-radius:5px; border:1.5px solid var(--border-strong); flex:0 0 auto;
+  display:grid; place-items:center; font-size:11px;
+}
+.checklist li.ok .box{background:var(--good); border-color:var(--good); color:#0A0B0F}
+.checklist li.ok{color:var(--text-1)}
+
+/* Day cards */
+.day{margin-bottom:22px; animation:cardIn .5s cubic-bezier(.2,.7,.3,1) backwards}
+@keyframes cardIn{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+.day-head{display:flex; align-items:center; gap:11px; margin-bottom:11px; flex-wrap:wrap}
+.day-no{
+  width:32px; height:32px; border-radius:10px; flex:0 0 auto; display:grid; place-items:center;
+  font-size:12.5px; font-weight:700; background:var(--surface-2); border:1px solid var(--border);
+}
+.day-head h4{font-size:14.5px}
+.day-head .dmeta{font-size:12px; color:var(--text-2); display:flex; gap:10px; flex-wrap:wrap}
+.acts{position:relative; padding-left:4px}
+.act{
+  display:flex; gap:13px; padding:13px 15px; border-radius:var(--r-md); margin-bottom:0;
+  background:var(--surface); border:1px solid var(--border);
+  transition:border-color .18s, transform .18s;
+}
+.act:hover{border-color:var(--border-strong); transform:translateX(2px)}
+.act .thumb{
+  width:40px; height:40px; border-radius:10px; flex:0 0 auto; display:grid; place-items:center; font-size:18px;
+  background:var(--surface-2);
+}
+.act .info{flex:1; min-width:0}
+.act .time{font-size:11.5px; font-weight:620; color:var(--accent-to); letter-spacing:.02em}
+.act h5{font-size:14.5px; font-weight:570; margin:2px 0 3px}
+.act .det{font-size:12.5px; color:var(--text-2)}
+.act .right{text-align:right; flex:0 0 auto}
+.act .cost{font-size:13px; font-weight:600}
+.connector{
+  display:flex; align-items:center; gap:9px; padding:7px 0 7px 21px; font-size:11.5px; color:var(--text-3);
+  position:relative;
+}
+.connector::before{
+  content:''; position:absolute; left:19px; top:0; bottom:0; width:0;
+  border-left:1.5px dashed var(--border-strong);
+}
+.connector span{background:var(--bg); padding:0 7px; position:relative; z-index:1; margin-left:8px; border-radius:4px}
+.free-block{
+  padding:16px; border-radius:var(--r-md); text-align:center; font-size:13.5px; color:var(--text-2);
+  background:var(--surface); border:1px dashed var(--border-strong);
+}
+.skel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); height:68px; margin-bottom:9px; position:relative; overflow:hidden}
+.skel::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,var(--surface-2),transparent);
+  animation:sh 1.3s ease-in-out infinite;
+}
+@keyframes sh{from{transform:translateX(-100%)} to{transform:translateX(100%)}}
+
+/* Option cards (flights / hotels) */
+.opt{
+  display:flex; gap:14px; padding:15px; border-radius:var(--r-md); margin-bottom:11px;
+  background:var(--surface); border:1px solid var(--border); position:relative;
+  transition:border-color .18s, transform .18s;
+}
+.opt:hover{border-color:var(--border-strong); transform:translateY(-2px)}
+.opt.best{border-color:var(--accent); background:var(--accent-soft)}
+.opt .best-rib{
+  position:absolute; top:-9px; left:15px; padding:3px 10px; border-radius:var(--r-pill);
+  font-size:10.5px; font-weight:700; letter-spacing:.03em;
+  background:linear-gradient(104deg,var(--accent-from),var(--accent-to)); color:#0A0B0F;
+}
+.opt .logo{
+  width:42px; height:42px; border-radius:11px; flex:0 0 auto; display:grid; place-items:center;
+  font-size:12px; font-weight:750; background:var(--surface-2); border:1px solid var(--border);
+}
+.opt .mid{flex:1; min-width:0}
+.opt .route{display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; margin-bottom:4px}
+.opt .route .arrow{flex:1; height:1px; background:var(--border-strong); position:relative; min-width:26px}
+.opt .route .arrow::after{content:'✈'; position:absolute; right:-2px; top:-9px; font-size:11px; color:var(--text-3)}
+.opt .sub{font-size:12.5px; color:var(--text-2)}
+.opt .reason{
+  font-size:12.5px; color:var(--text-2); margin-top:9px; padding-top:9px; border-top:1px solid var(--border);
+  display:flex; gap:8px;
+}
+.opt .reason::before{content:'✦'; color:var(--accent-to); flex:0 0 auto}
+.opt .price{text-align:right; flex:0 0 auto}
+.opt .price .amt{font-size:17px; font-weight:680; letter-spacing:-.02em}
+.opt .price .per{font-size:11.5px; color:var(--text-2)}
+.fresh{font-size:11px; color:var(--text-3); margin-top:5px}
+
+.tier-switch{display:inline-flex; padding:3px; border-radius:var(--r-pill); background:var(--surface-2); border:1px solid var(--border); margin-bottom:16px}
+.tier-switch button{padding:7px 15px; border-radius:var(--r-pill); font-size:13px; color:var(--text-2); font-weight:510}
+.tier-switch button.on{background:var(--bg-elev); color:var(--text-1); box-shadow:0 2px 8px -2px rgba(0,0,0,.4)}
+
+/* Documents */
+.trav{border:1px solid var(--border); border-radius:var(--r-md); margin-bottom:11px; overflow:hidden; background:var(--surface)}
+.trav-head{display:flex; align-items:center; gap:12px; padding:13px 15px; width:100%; text-align:left}
+.trav-head .pic{
+  width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center;
+  font-size:12.5px; font-weight:680; background:var(--surface-2); border:1px solid var(--border);
+}
+.trav-head .who{flex:1; min-width:0}
+.trav-head h5{font-size:14px}
+.trav-head .age{font-size:12px; color:var(--text-2)}
+.trav-body{padding:0 15px 13px; display:grid; gap:9px}
+.doc-row{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-top:1px solid var(--border)}
+.doc-row .dic{font-size:15px; flex:0 0 auto; width:22px; text-align:center}
+.doc-row .dinfo{flex:1; min-width:0}
+.doc-row .dname{font-size:13.5px; font-weight:560; margin-bottom:2px}
+.doc-row .dreq{font-size:12.5px; color:var(--text-2)}
+.doc-row .dsrc{font-size:11.5px; color:var(--text-3); margin-top:4px}
+.doc-row .dsrc a{color:var(--accent-to)}
+.blocking-bar{
+  display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:var(--r-md); margin-bottom:16px;
+  background:var(--crit-soft); border:1px solid rgba(248,113,113,.3);
+}
+.blocking-bar .ic{font-size:17px; flex:0 0 auto}
+.blocking-bar h5{font-size:14px; margin-bottom:3px}
+.blocking-bar p{font-size:13px; color:var(--text-2)}
+
+/* Budget */
+.bmeter{margin-bottom:22px}
+.bmeter .top{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px}
+.bmeter .big{font-size:28px; font-weight:680; letter-spacing:-.03em}
+.bmeter .cap{font-size:13px; color:var(--text-2)}
+.bar{height:10px; border-radius:var(--r-pill); overflow:hidden; display:flex; background:var(--surface-2)}
+.bar i{display:block; height:100%}
+.bar-legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:12px; color:var(--text-2)}
+.bar-legend span{display:flex; align-items:center; gap:6px}
+.bar-legend .sw{width:9px; height:9px; border-radius:3px}
+.brow{display:flex; align-items:center; gap:12px; padding:13px 0; border-top:1px solid var(--border)}
+.brow .bname{flex:1; font-size:14px}
+.brow .bpp{font-size:12px; color:var(--text-2)}
+.brow .bamt{font-size:14.5px; font-weight:600}
+.callout{
+  padding:14px 16px; border-radius:var(--r-md); margin-top:18px;
+  background:var(--warn-soft); border:1px solid rgba(251,191,36,.3); font-size:13.5px;
+}
+.callout h5{font-size:13.5px; margin-bottom:5px}
+.callout p{color:var(--text-2); font-size:13px}
+
+/* Essentials */
+.ess-grid{display:grid; gap:14px}
+.ess{padding:17px; border-radius:var(--r-md); background:var(--surface); border:1px solid var(--border)}
+.ess h5{font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:8px}
+.wx{display:flex; gap:7px; overflow-x:auto; padding-bottom:4px}
+.wx div{
+  flex:0 0 auto; width:62px; text-align:center; padding:11px 0; border-radius:var(--r-sm);
+  background:var(--surface-2); font-size:12px;
+}
+.wx .d{color:var(--text-2); font-size:11px; margin-bottom:4px}
+.wx .t{font-size:13px; font-weight:620; margin-top:3px}
+.pack{display:grid; gap:8px}
+.pack-grp{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); font-weight:620; margin-top:7px}
+.pack label{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--text-2); cursor:pointer}
+.pack input{appearance:none; width:17px; height:17px; border-radius:5px; border:1.5px solid var(--border-strong); flex:0 0 auto; display:grid; place-items:center; cursor:pointer}
+.pack input:checked{background:var(--good); border-color:var(--good)}
+.pack input:checked::after{content:'✓'; font-size:11px; color:#0A0B0F; font-weight:800}
+.pack input:checked + span{text-decoration:line-through; color:var(--text-3)}
+.kv{display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid var(--border); font-size:13.5px}
+.kv:first-of-type{border-top:0}
+.kv .k{color:var(--text-2)}
+.kv .v{font-weight:570}
+
+/* ---------- Package ---------- */
+.pkg{padding:48px 0 72px; text-align:center}
+.pkg .seal{
+  width:72px; height:72px; margin:0 auto 22px; border-radius:22px; display:grid; place-items:center; font-size:32px;
+  background:linear-gradient(135deg,var(--accent-from),var(--accent-to));
+  box-shadow:0 18px 44px -14px rgba(139,92,246,.8);
+  animation:pop .6s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes pop{from{transform:scale(.6); opacity:0} to{transform:none; opacity:1}}
+.pkg h2{font-size:clamp(26px,4vw,38px); font-family:'Fraunces',serif; font-weight:600; margin-bottom:10px}
+.pkg .lede{color:var(--text-2); max-width:480px; margin:0 auto 32px}
+.pkg-card{max-width:560px; margin:0 auto; padding:26px; border-radius:var(--r-lg); text-align:left}
+.pkg-card .row{display:flex; gap:11px; align-items:flex-start; padding:11px 0; border-top:1px solid var(--border); font-size:14px}
+.pkg-card .row:first-child{border-top:0}
+.pkg-card .row .tick{color:var(--good); font-weight:800; flex:0 0 auto}
+.pkg-actions{display:flex; gap:11px; justify-content:center; flex-wrap:wrap; margin-top:28px}
+
+/* ---------- Mobile ---------- */
+.sheet-toggle{display:none}
+@media (max-width:1024px){
+  .trio,.pricing{grid-template-columns:1fr}
+  .ws{grid-template-columns:1fr}
+  .ws-art{
+    position:fixed; left:0; right:0; bottom:0; top:auto; z-index:60;
+    height:88vh; transform:translateY(calc(100% - 64px));
+    transition:transform .3s cubic-bezier(.2,.7,.3,1);
+    background:var(--bg-elev); border-top:1px solid var(--border-strong);
+    border-radius:20px 20px 0 0; box-shadow:0 -20px 60px -20px rgba(0,0,0,.7);
+  }
+  .ws-art.open{transform:translateY(0)}
+  .sheet-toggle{
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    height:64px; width:100%; flex:0 0 auto; font-size:14px; font-weight:560;
+  }
+  .sheet-toggle .grip{width:36px; height:4px; border-radius:2px; background:var(--border-strong); position:absolute; top:9px; left:50%; transform:translateX(-50%)}
+  .ws-chat{border-right:0; padding-bottom:64px}
+  .navlinks{display:none}
+}
+@media (max-width:640px){
+  .wrap,.wrap-narrow{padding:0 16px}
+  .topbar{padding:10px 16px}
+  .hero{padding:48px 0 36px}
+  .trips{grid-template-columns:1fr}
+  .thread{padding:16px 14px 8px}
+  .panels{padding:16px 14px 40px}
+  .tool-stack,.quick{margin-left:0}
+  .opt{flex-wrap:wrap}
+  .opt .price{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+  .ws-art{transition:none}
+}
+/* Print — the PDF export path */
+@media print{
+  .topbar,.ws-chat,.tabs,.pkg-actions,.bg-mesh,.sheet-toggle{display:none !important}
+  body{background:#fff; color:#000}
+  .view{display:block !important}
+  .panel{display:block !important; page-break-after:always}
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">J</span><span>Journey<span class="grad-text">OS</span></span></div>
+  <div class="spacer"></div>
+  <nav class="navlinks" id="nav">
+    <button class="navlink on" data-go="landing">Landing</button>
+    <button class="navlink" data-go="auth">Sign up</button>
+    <button class="navlink" data-go="dashboard">Dashboard</button>
+    <button class="navlink" data-go="workspace">Workspace</button>
+    <button class="navlink" data-go="package">Package</button>
+  </nav>
+  <span class="kbd" title="Command palette">⌘K</span>
+  <button class="icon-btn" id="theme" aria-label="Toggle colour theme" title="Toggle theme">◐</button>
+</header>
+
+<main>
+
+<!-- ============================================================
+     S-01 · LANDING
+     ============================================================ -->
+<section class="view active" id="view-landing">
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow"><span class="dot"></span> Your AI Travel Operating System</div>
+      <h1>Describe the trip.<br>Get the <span class="grad-text">whole plan</span>.</h1>
+      <p class="sub">One sentence in. A day-by-day itinerary, flights, stays, budget, visa requirements and a packing list out — in under three minutes.</p>
+
+      <div class="composer-shell">
+        <div class="composer-glow"></div>
+        <div class="composer">
+          <textarea id="heroInput" rows="1" placeholder="Plan a 7-day London vacation for me, my wife and two kids…" aria-label="Describe your trip"></textarea>
+          <button class="mic" id="heroMic" aria-label="Use voice input" title="Voice input">🎙</button>
+          <button class="send" data-go="workspace" data-run="demo" aria-label="Plan this trip">↗</button>
+        </div>
+      </div>
+
+      <div class="prompt-row" id="heroPrompts"></div>
+    </div>
+
+    <div class="trio">
+      <div class="feat glass">
+        <div class="ic">💬</div>
+        <h3>It asks, then it builds</h3>
+        <p>Two questions maximum. It infers your party from "me, my wife and two kids" and states every assumption out loud.</p>
+      </div>
+      <div class="feat glass">
+        <div class="ic">🛂</div>
+        <h3>It catches what ruins trips</h3>
+        <p>Passport validity, visa type, insurance rules — checked automatically, cited, and flagged before you book anything.</p>
+      </div>
+      <div class="feat glass">
+        <div class="ic">🗺</div>
+        <h3>Plans that are possible</h3>
+        <p>Routes optimised, opening hours respected, walking capped for a six-year-old. Not a list of links — a plan.</p>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <h2>Pay for planning. Not for tabs.</h2>
+      <p>Start free. Upgrade when you want the whole thing handled.</p>
+    </div>
+    <div class="pricing">
+      <div class="price-card glass">
+        <div class="tag">Free</div>
+        <div class="amt">$0</div>
+        <ul><li>2 active trips</li><li>3 full plans a month</li><li>PDF export with branding</li></ul>
+        <button class="btn" style="width:100%" data-go="auth">Get started</button>
+      </div>
+      <div class="price-card glass feature">
+        <div class="ribbon">Most popular</div>
+        <div class="tag ai">Explorer</div>
+        <div class="amt">$9<span> / month</span></div>
+        <ul><li>Unlimited trips and plans</li><li>Voice input, priority generation</li><li>Share links, clean PDF</li><li>Compliance tracking</li></ul>
+        <button class="btn btn-primary" style="width:100%" data-go="auth">Start free trial</button>
+      </div>
+      <div class="price-card glass">
+        <div class="tag">Concierge</div>
+        <div class="amt">$29<span> / month</span></div>
+        <ul><li>Everything in Explorer</li><li>Human plan review</li><li>Luxury curation</li><li>24/7 priority chat</li></ul>
+        <button class="btn" style="width:100%" data-go="auth">Talk to us</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     S-02 · AUTH
+     ============================================================ -->
+<section class="view" id="view-auth">
+  <div class="auth-wrap">
+    <div class="auth-card glass">
+      <h2>Create your account</h2>
+      <p class="lede">Your trips, travellers and documents — saved and ready next time.</p>
+
+      <button class="btn" style="width:100%">
+        <span style="font-weight:700">G</span> Continue with Google
+      </button>
+      <div class="divider">or sign up with email</div>
+
+      <div class="field">
+        <label for="su-name">Full name</label>
+        <input id="su-name" type="text" placeholder="Priya Raman" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="su-email">Email</label>
+        <input id="su-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="su-pass">Password</label>
+        <input id="su-pass" type="password" placeholder="At least 10 characters" autocomplete="new-password">
+        <div class="meter"><i></i></div>
+        <div class="tiny muted" style="margin-top:6px">Strong — checked against known breached passwords</div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%; margin-top:8px" data-go="dashboard">Create account →</button>
+      <p class="auth-foot">Already have an account? <a href="#" data-go="dashboard">Log in</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     S-06 · DASHBOARD
+     ============================================================ -->
+<section class="view" id="view-dashboard">
+  <div class="wrap dash">
+    <div class="alert-bar">
+      <span class="ic">⚠️</span>
+      <span class="txt"><b>Arjun's passport expires in 4 months.</b> Your Tokyo trip in June needs 6 months' validity — renew by 20 December.</span>
+      <button class="btn btn-sm" data-go="workspace">Review</button>
+    </div>
+
+    <h1 class="greet">Good evening, Priya.</h1>
+    <p class="greet-sub">Where are we going next?</p>
+
+    <div class="composer-shell" style="max-width:none">
+      <div class="composer-glow"></div>
+      <div class="composer">
+        <textarea id="dashInput" rows="1" placeholder="Tell me about the trip…" aria-label="Describe your trip"></textarea>
+        <button class="mic" id="dashMic" aria-label="Use voice input" title="Voice input">🎙</button>
+        <button class="send" data-go="workspace" data-run="demo" aria-label="Start planning">↗</button>
+      </div>
+    </div>
+    <div class="prompt-row" id="dashPrompts" style="justify-content:flex-start"></div>
+
+    <button class="resume" data-go="workspace" data-run="demo">
+      <span class="ring"><span>62%</span></span>
+      <span style="flex:1">
+        <span style="display:block; font-weight:600; font-size:15px">Continue planning — London, April</span>
+        <span class="tiny muted">You were choosing between two South Kensington apartments</span>
+      </span>
+      <span class="tag ai">Resume</span>
+    </button>
+
+    <div class="sect-label"><span>Your trips</span><button class="btn btn-sm btn-ghost">View all →</button></div>
+    <div class="trips" id="tripsGrid"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     S-07 · TRIP WORKSPACE
+     ============================================================ -->
+<section class="view" id="view-workspace">
+  <div class="ws">
+
+    <!-- chat -->
+    <div class="ws-chat">
+      <div class="ws-head">
+        <button class="icon-btn" data-go="dashboard" aria-label="Back to dashboard">←</button>
+        <div class="ttl">
+          <h3 id="wsTitle">New trip</h3>
+          <div class="sub" id="wsSub">Tell me where you'd like to go</div>
+        </div>
+        <span class="tag" id="wsState">Listening</span>
+      </div>
+
+      <div class="thread" id="thread"></div>
+
+      <div class="ws-composer">
+        <div class="composer-shell">
+          <div class="composer-glow"></div>
+          <div class="composer">
+            <textarea id="wsInput" rows="1" placeholder="Message JourneyOS…" aria-label="Message"></textarea>
+            <button class="mic" id="wsMic" aria-label="Use voice input" title="Voice input">🎙</button>
+            <button class="send" id="wsSend" aria-label="Send">↗</button>
+          </div>
+        </div>
+        <div class="tiny muted" style="margin-top:9px; text-align:center">
+          Grounded in live data · guidance only for visa and passport rules
+        </div>
+      </div>
+    </div>
+
+    <!-- artifact -->
+    <div class="ws-art" id="artifact">
+      <button class="sheet-toggle" id="sheetToggle">
+        <span class="grip"></span>
+        <span id="sheetLabel">Your trip plan</span>
+        <span class="tag ai" id="sheetTag">tap to open</span>
+      </button>
+
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-tab="itin">Itinerary</button>
+        <button class="tab" data-tab="flights">Flights <span class="badge" id="bFlights">0</span></button>
+        <button class="tab" data-tab="stays">Stays <span class="badge" id="bStays">0</span></button>
+        <button class="tab" data-tab="docs">Documents <span class="badge" id="bDocs">0</span></button>
+        <button class="tab" data-tab="budget">Budget</button>
+        <button class="tab" data-tab="ess">Essentials</button>
+      </div>
+
+      <div class="panels">
+        <div class="panel on" id="panel-itin">
+          <div class="empty" id="itinEmpty">
+            <div class="ic">🗓</div>
+            <h4>Your plan will appear here</h4>
+            <p>Describe the trip in the chat and I'll build it — day by day, as each piece lands.</p>
+            <ul class="checklist">
+              <li><span class="box"></span> Where and how long</li>
+              <li><span class="box"></span> Who's travelling</li>
+              <li><span class="box"></span> Flights and stays</li>
+              <li><span class="box"></span> Entry documents</li>
+              <li><span class="box"></span> Budget and essentials</li>
+            </ul>
+          </div>
+          <div id="itinContent"></div>
+        </div>
+        <div class="panel" id="panel-flights"><div id="flightsContent"><div class="empty"><div class="ic">✈️</div><h4>No flights yet</h4><p>I'll search once I know your dates and departure city.</p></div></div></div>
+        <div class="panel" id="panel-stays"><div id="staysContent"><div class="empty"><div class="ic">🏨</div><h4>No stays yet</h4><p>I'll find places that fit your party and your budget tier.</p></div></div></div>
+        <div class="panel" id="panel-docs"><div id="docsContent"><div class="empty"><div class="ic">🛂</div><h4>Nothing to check yet</h4><p>Once I know the destination and who's travelling, I check passports, visas and insurance automatically.</p></div></div></div>
+        <div class="panel" id="panel-budget"><div id="budgetContent"><div class="empty"><div class="ic">💰</div><h4>No budget yet</h4><p>Set a cap in the chat and I'll hold the whole plan to it.</p></div></div></div>
+        <div class="panel" id="panel-ess"><div id="essContent"><div class="empty"><div class="ic">🎒</div><h4>Essentials come last</h4><p>Packing, weather, currency and emergency contacts, once the plan is set.</p></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     S-15 · FINAL PACKAGE
+     ============================================================ -->
+<section class="view" id="view-package">
+  <div class="wrap pkg">
+    <div class="seal">✓</div>
+    <h2>Your London package is ready</h2>
+    <p class="lede">Seven days, four travellers, every document accounted for. Yours to download, share or print.</p>
+
+    <div class="pkg-card glass">
+      <div class="row"><span class="tick">✓</span><span><b>7-day itinerary</b> — 21 activities, route-optimised, nothing scheduled while closed</span></div>
+      <div class="row"><span class="tick">✓</span><span><b>Flights</b> — British Airways direct, BLR ⇄ LHR, baggage included</span></div>
+      <div class="row"><span class="tick">✓</span><span><b>Stay</b> — South Kensington apartment, 7 nights, all-in ₹1,38,000</span></div>
+      <div class="row"><span class="tick">✓</span><span><b>Documents</b> — 2 passports, 4 visas, insurance — checklist with dates</span></div>
+      <div class="row"><span class="tick">✓</span><span><b>Budget</b> — ₹4,59,600 <span class="muted">(₹39,600 over cap — visas; the only honest fix costs you a direct flight)</span></span></div>
+      <div class="row"><span class="tick">✓</span><span><b>Essentials</b> — packing list, weather, currency, transport, emergency contacts</span></div>
+    </div>
+
+    <div class="pkg-actions">
+      <button class="btn btn-primary" onclick="window.print()">⬇ Download PDF</button>
+      <button class="btn">🔗 Share with your wife</button>
+      <button class="btn">📅 Add to calendar</button>
+      <button class="btn btn-ghost" data-go="workspace">← Back to the plan</button>
+    </div>
+    <p class="tiny muted" style="margin-top:26px">I'll keep an eye on this trip. Flight prices move — I'll tell you if yours does.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   Router, theme, composer behaviour
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+function go(view){
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+  $$('#nav .navlink').forEach(b => b.classList.toggle('on', b.dataset.go === view));
+  window.scrollTo({top:0, behavior:'instant'});
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-go]');
+  if(!t) return;
+  e.preventDefault();
+  go(t.dataset.go);
+  if(t.dataset.run === 'demo') startDemo(t);
+});
+
+/* theme */
+const themeBtn = $('#theme');
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try{ localStorage.setItem('journeyos-theme', next); }catch(_){}
+});
+try{
+  const saved = localStorage.getItem('journeyos-theme');
+  if(saved) document.documentElement.dataset.theme = saved;
+}catch(_){}
+
+/* auto-grow textareas */
+$$('textarea').forEach(ta => {
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 140) + 'px';
+  });
+});
+
+/* mic — fake waveform, real affordance */
+const MIC = '🎙';
+$$('.mic').forEach(mic => {
+  mic.addEventListener('click', () => {
+    const on = mic.classList.toggle('rec');
+    if(on){
+      mic.innerHTML = '<span class="wave"><i></i><i></i><i></i><i></i><i></i></span>';
+      mic.setAttribute('aria-label','Stop recording');
+      const ta = mic.parentElement.querySelector('textarea');
+      setTimeout(() => {
+        if(!mic.classList.contains('rec')) return;
+        mic.classList.remove('rec'); mic.textContent = MIC;
+        mic.setAttribute('aria-label','Use voice input');
+        if(ta){
+          ta.value = 'Plan a 7-day London vacation for me, my wife and two kids';
+          ta.dispatchEvent(new Event('input'));
+          ta.focus();
+        }
+      }, 2600);
+    } else {
+      mic.textContent = MIC;
+      mic.setAttribute('aria-label','Use voice input');
+    }
+  });
+});
+
+/* suggested prompts */
+const PROMPTS = [
+  'Plan a 7-day London vacation for me, my wife and two kids',
+  'Somewhere warm in Europe under ₹2L in March',
+  '4 days in Tokyo, food and temples, relaxed pace',
+  'Weekend in Goa with the kids',
+  'Do I need a visa for Vietnam?'
+];
+function renderPrompts(el){
+  el.innerHTML = PROMPTS.map((p,i) =>
+    `<button class="chip" style="animation-delay:${i*70}ms" data-prompt="${p.replace(/"/g,'&quot;')}">${p}</button>`
+  ).join('');
+}
+renderPrompts($('#heroPrompts'));
+renderPrompts($('#dashPrompts'));
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-prompt]');
+  if(!c) return;
+  go('workspace');
+  startDemo(c);
+});
+
+/* trips grid */
+const TRIPS = [
+  {emoji:'🗼', city:'Tokyo', meta:'12–19 Jun · 2 travellers', tag:'Upcoming',  cls:'ai',   alert:true},
+  {emoji:'🏖', city:'Goa',   meta:'3–6 Jan · 4 travellers',   tag:'Completed', cls:'',     alert:false},
+  {emoji:'🏔', city:'Zurich',meta:'Sep · dates flexible',     tag:'Draft',     cls:'warn', alert:false},
+  {emoji:'🕌', city:'Istanbul', meta:'Nov · 2 travellers',    tag:'Draft',     cls:'warn', alert:false}
+];
+const GRADS = [
+  'linear-gradient(135deg,#8B5CF6,#22D3EE)',
+  'linear-gradient(135deg,#F59E0B,#EC4899)',
+  'linear-gradient(135deg,#10B981,#22D3EE)',
+  'linear-gradient(135deg,#EC4899,#8B5CF6)'
+];
+$('#tripsGrid').innerHTML = TRIPS.map((t,i) => `
+  <button class="trip-card" data-go="workspace">
+    <div class="cover" style="background:${GRADS[i]}">${t.emoji}</div>
+    <div class="body">
+      <h4>${t.city}</h4>
+      <div class="meta">${t.meta}</div>
+      <div class="foot">
+        <span class="tag ${t.cls}">${t.tag}</span>
+        ${t.alert ? '<span class="tag crit">1 document issue</span>' : ''}
+      </div>
+    </div>
+  </button>`).join('');
+
+/* ============================================================
+   The demo conversation engine
+   This is the PRD reference script, rendered live.
+   ============================================================ */
+const thread = $('#thread');
+let busy = false;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const scroll = () => { thread.scrollTop = thread.scrollHeight; };
+
+function setState(label, cls){
+  const el = $('#wsState');
+  el.textContent = label;
+  el.className = 'tag ' + (cls || '');
+}
+function userMsg(text){
+  const d = document.createElement('div');
+  d.className = 'msg me';
+  d.innerHTML = `<div class="av">P</div><div class="bubble">${text}</div>`;
+  thread.appendChild(d); scroll();
+}
+function aiShell(){
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+  d.innerHTML = `<div class="av">J</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
+  thread.appendChild(d); scroll();
+  return d.querySelector('.bubble');
+}
+/* stream HTML chunk by chunk so it reads like real generation */
+async function stream(bubble, html, speed=9){
+  bubble.innerHTML = '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const nodes = [...tmp.childNodes];
+  for(const node of nodes){
+    const el = node.cloneNode(true);
+    bubble.appendChild(el);
+    if(el.nodeType === 1 && (el.tagName === 'P' || el.tagName === 'LI')){
+      const full = el.innerHTML;
+      el.innerHTML = '';
+      let i = 0;
+      // reveal in word-ish chunks
+      const parts = full.split(/(<[^>]+>|\s+)/).filter(Boolean);
+      while(i < parts.length){
+        el.innerHTML += parts[i++];
+        if(i % 2 === 0){ scroll(); await sleep(speed); }
+      }
+    }
+    scroll();
+    await sleep(60);
+  }
+}
+async function toolRun(items){
+  const stack = document.createElement('div');
+  stack.className = 'tool-stack';
+  thread.appendChild(stack); scroll();
+  for(const it of items){
+    const chip = document.createElement('div');
+    chip.className = 'tool-chip';
+    chip.innerHTML = `<span class="spin"></span><span>${it.label}…</span>`;
+    stack.appendChild(chip); scroll();
+    await sleep(it.ms || 700);
+    const mark = it.warn ? '<span class="warnmark">⚠</span>' : '<span class="ok">✓</span>';
+    chip.className = 'tool-chip done';
+    chip.innerHTML = `${mark}<span>${it.done}</span>`;
+    scroll();
+    await sleep(140);
+  }
+}
+function quickReplies(list){
+  const q = document.createElement('div');
+  q.className = 'quick';
+  q.innerHTML = list.map(l => `<button class="chip" data-step="${l.step}">${l.label}</button>`).join('');
+  thread.appendChild(q); scroll();
+  return q;
+}
+
+/* ---------- artifact rendering ---------- */
+function tabTo(name){
+  $$('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
+}
+$$('.tab').forEach(t => t.addEventListener('click', () => tabTo(t.dataset.tab)));
+$('#sheetToggle').addEventListener('click', () => {
+  const open = $('#artifact').classList.toggle('open');
+  $('#sheetTag').textContent = open ? 'tap to close' : 'tap to open';
+});
+
+const DAYS = [
+  {n:1, date:'Sat 11 Apr', wx:'12° · light rain', km:'2.1 km', cost:'₹4,200', items:[
+    {t:'14:05', ttl:'Land at Heathrow T5', d:'Immigration ~40 min · Heathrow Express to Paddington', ic:'✈️', cost:'incl.'},
+    {t:'16:30', ttl:'Check in — South Kensington apartment', d:'2 bedrooms · kitchen · 8 min to Natural History Museum', ic:'🏠', cost:'incl.', travel:'34 min · Train + Tube'},
+    {t:'18:30', ttl:'Dinner at Daquise', d:'Polish, 4 min walk · kid-friendly, no booking needed', ic:'🍽', cost:'₹4,200', travel:'4 min · Walk'}
+  ]},
+  {n:2, date:'Sun 12 Apr', wx:'14° · cloudy', km:'4.4 km', cost:'₹2,600', items:[
+    {t:'09:30', ttl:'British Museum — Egypt wing only', d:'2 h capped · mummies first, then out. Free entry', ic:'🏛', cost:'Free', badge:'≤2 h for your 6-year-old'},
+    {t:'12:00', ttl:'Lunch in Russell Square', d:'Picnic if dry, Store Street Espresso if not', ic:'☕', cost:'₹2,600', travel:'6 min · Walk'},
+    {t:'14:30', ttl:'Diana Memorial Playground', d:'Kensington Gardens · 90 min · free · pirate ship', ic:'🛝', cost:'Free', travel:'22 min · Tube', badge:"He'll remember this longer than the museum"}
+  ]},
+  {n:3, date:'Mon 13 Apr', wx:'11° · rain', km:'3.8 km', cost:'₹12,400', items:[
+    {t:'09:00', ttl:'Tower of London', d:'Pre-booked — sells out in school holidays. 3 h · Crown Jewels first', ic:'🏰', cost:'₹10,100', badge:'Locked by you'},
+    {t:'12:30', ttl:'Borough Market', d:'Lunch · 45 min · covered, good in rain', ic:'🧆', cost:'₹2,300', travel:'18 min · Walk + Tube'},
+    {t:'15:00', ttl:'Thames Clipper to Westminster', d:'River bus · 25 min · the best cheap view in London', ic:'⛴', cost:'incl.', travel:'9 min · Walk'}
+  ]},
+  {n:4, date:'Tue 14 Apr', wx:'13° · sunny', km:'3.2 km', cost:'₹1,900', items:[
+    {t:'10:00', ttl:'Natural History Museum', d:'90 min · dinosaurs · 8 min from the apartment. Free', ic:'🦖', cost:'Free', badge:'Swapped from the V&A — shorter, and he will love it'},
+    {t:'12:30', ttl:'Science Museum — Wonderlab', d:'Hands-on, worth the ticket for the 11-year-old', ic:'🔬', cost:'₹1,900', travel:'5 min · Walk'},
+    {t:'15:30', ttl:'Hyde Park — pedalos on the Serpentine', d:'Free time, weather permitting', ic:'🚣', cost:'₹900', travel:'14 min · Walk'}
+  ]},
+  {n:5, date:'Wed 15 Apr', free:true, wx:'15° · sunny', km:'—', cost:'—'},
+  {n:6, date:'Thu 16 Apr', wx:'12° · showers', km:'4.9 km', cost:'₹8,600', items:[
+    {t:'09:45', ttl:'Westminster & Churchill War Rooms', d:'2 h · booked · strong for an 11-year-old', ic:'🎖', cost:'₹6,300'},
+    {t:'13:00', ttl:'Lunch at Regency Café', d:'Classic London caff · cash only · 30 min', ic:'🍳', cost:'₹2,300', travel:'11 min · Walk'},
+    {t:'15:00', ttl:'London Eye', d:'Pre-booked 15:00 slot · 30 min · sunset is better but queues are worse', ic:'🎡', cost:'incl.', travel:'16 min · Walk'}
+  ]},
+  {n:7, date:'Fri 17 Apr', wx:'14° · cloudy', km:'1.6 km', cost:'₹3,100', items:[
+    {t:'09:30', ttl:'Covent Garden & street performers', d:'Free · 90 min · last souvenirs', ic:'🎭', cost:'₹3,100'},
+    {t:'13:00', ttl:'Back to the apartment, pack', d:'Checkout 15:00', ic:'🧳', cost:'—', travel:'21 min · Tube'},
+    {t:'16:00', ttl:'Heathrow T5 — BA199 dep 19:40', d:'3 h before departure with children', ic:'✈️', cost:'incl.', travel:'47 min · Train'}
+  ]}
+];
+
+function renderDays(){
+  const html = DAYS.map((d,i) => {
+    const head = `
+      <div class="day-head">
+        <span class="day-no">D${d.n}</span>
+        <h4>${d.date}</h4>
+        <span class="dmeta"><span>🌤 ${d.wx}</span><span>🚶 ${d.km}</span><span>💰 ${d.cost}</span></span>
+      </div>`;
+    if(d.free){
+      return `<div class="day" style="animation-delay:${i*90}ms">${head}
+        <div class="free-block"><b>Deliberately free.</b><br>
+        <span class="tiny">Day four of a family trip is when everyone gets tired. You asked me to keep this one clear — I have.</span></div>
+      </div>`;
+    }
+    const acts = d.items.map(a => `
+      ${a.travel ? `<div class="connector"><span>${a.travel}</span></div>` : ''}
+      <div class="act">
+        <div class="thumb">${a.ic}</div>
+        <div class="info">
+          <div class="time">${a.t}</div>
+          <h5>${a.ttl}</h5>
+          <div class="det">${a.d}</div>
+          ${a.badge ? `<div style="margin-top:7px"><span class="tag ai">✦ ${a.badge}</span></div>` : ''}
+        </div>
+        <div class="right"><div class="cost">${a.cost}</div></div>
+      </div>`).join('');
+    return `<div class="day" style="animation-delay:${i*90}ms">${head}<div class="acts">${acts}</div></div>`;
+  }).join('');
+  $('#itinContent').innerHTML = html;
+  $('#itinEmpty').style.display = 'none';
+}
+
+function renderFlights(){
+  $('#bFlights').textContent = '7';
+  $('#flightsContent').innerHTML = `
+    <div class="tiny muted" style="margin-bottom:14px">7 options · ranked by value, not price alone</div>
+    <div class="opt best">
+      <span class="best-rib">BEST VALUE</span>
+      <div class="logo">BA</div>
+      <div class="mid">
+        <div class="route"><span>BLR</span><span class="arrow"></span><span>LHR</span></div>
+        <div class="sub">01:45 → 07:20 · 10h 35m · <b>Direct</b> · British Airways · 2×23 kg checked</div>
+        <div class="reason">Not the cheapest. The cheap one has a 9-hour Doha layover, which with a 6-year-old is a false economy.</div>
+      </div>
+      <div class="price"><div class="amt">₹2,24,000</div><div class="per">4 travellers, return</div><div class="fresh">fetched 2 min ago</div></div>
+    </div>
+    <div class="opt">
+      <div class="logo">QR</div>
+      <div class="mid">
+        <div class="route"><span>BLR</span><span class="arrow"></span><span>LHR</span></div>
+        <div class="sub">04:10 → 14:05 · 19h 55m · 1 stop (DOH 9h 05m) · Qatar Airways</div>
+        <div class="reason">₹48,000 cheaper. A nine-hour layover each way with young children is the trade.</div>
+      </div>
+      <div class="price"><div class="amt">₹1,76,000</div><div class="per">4 travellers, return</div><div class="fresh">fetched 2 min ago</div></div>
+    </div>
+    <div class="opt">
+      <div class="logo">AI</div>
+      <div class="mid">
+        <div class="route"><span>BLR</span><span class="arrow"></span><span>LHR</span></div>
+        <div class="sub">06:00 → 11:30 · 11h 30m · Direct · Air India · 2×23 kg</div>
+        <div class="reason">Also direct and slightly cheaper, but the 06:00 departure means a 03:30 start for the kids.</div>
+      </div>
+      <div class="price"><div class="amt">₹2,11,000</div><div class="per">4 travellers, return</div><div class="fresh">fetched 2 min ago</div></div>
+    </div>`;
+}
+
+function renderStays(){
+  $('#bStays').textContent = '23';
+  $('#staysContent').innerHTML = `
+    <div class="tier-switch">
+      <button>Budget</button><button class="on">Mid-range</button><button>Luxury</button>
+    </div>
+    <div class="opt best">
+      <span class="best-rib">RECOMMENDED</span>
+      <div class="logo">🏠</div>
+      <div class="mid">
+        <div class="route" style="font-size:14.5px"><span>South Kensington Apartment</span></div>
+        <div class="sub">2 bed · sleeps 4 · kitchen · ★ 4.8 (412) · 0.4 km to your plan centre</div>
+        <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap">
+          <span class="tag good">Family room</span><span class="tag">Kitchen</span><span class="tag">Step-free</span><span class="tag">Washer</span>
+        </div>
+        <div class="reason">Walking distance to three of your museums, and a kitchen matters more than you'd think with young kids.</div>
+      </div>
+      <div class="price"><div class="amt">₹1,38,000</div><div class="per">7 nights, all-in</div><div class="fresh">₹19,700 / night</div></div>
+    </div>
+    <div class="opt">
+      <div class="logo">🏨</div>
+      <div class="mid">
+        <div class="route" style="font-size:14.5px"><span>Premier Inn — County Hall</span></div>
+        <div class="sub">Family room · sleeps 4 · ★ 4.5 (8,210) · 2.9 km to your plan centre</div>
+        <div class="reason">Cheaper and reliable, but no kitchen and 25 minutes further from your museum days.</div>
+      </div>
+      <div class="price"><div class="amt">₹1,04,000</div><div class="per">7 nights, all-in</div></div>
+    </div>
+    <div class="opt">
+      <div class="logo">🏨</div>
+      <div class="mid">
+        <div class="route" style="font-size:14.5px"><span>The Bailey's Hotel Kensington</span></div>
+        <div class="sub">2 connecting rooms · ★ 4.6 (3,104) · 0.6 km to your plan centre</div>
+        <div class="reason">Great location and breakfast included, but two rooms pushes you ₹26,000 over the apartment.</div>
+      </div>
+      <div class="price"><div class="amt">₹1,64,000</div><div class="per">7 nights, all-in</div></div>
+    </div>`;
+}
+
+function renderDocs(){
+  const b = $('#bDocs'); b.textContent = '2'; b.className = 'badge crit';
+  $('#docsContent').innerHTML = `
+    <div class="blocking-bar">
+      <span class="ic">🚫</span>
+      <div>
+        <h5>2 blocking issues — both solvable in your timeline</h5>
+        <p>You have 27 weeks before departure. Son's passport first, then your daughter's renewal, then all four visas.</p>
+      </div>
+    </div>
+
+    <div class="trav">
+      <div class="trav-head"><span class="pic">P</span><div class="who"><h5>Priya Raman <span class="tiny muted">(you)</span></h5><div class="age">Adult · India</div></div><span class="tag warn">Action needed</span></div>
+      <div class="trav-body">
+        <div class="doc-row"><span class="dic">🛂</span><div class="dinfo"><div class="dname">Passport</div><div class="dreq">Valid to Mar 2030 — comfortably beyond the UK requirement.</div></div><span class="tag good">Satisfied</span></div>
+        <div class="doc-row"><span class="dic">📄</span><div class="dinfo"><div class="dname">UK Standard Visitor visa</div><div class="dreq">Required. Online application, biometrics at VFS Bengaluru. £127 · 3 weeks standard.</div><div class="dsrc">Source: <a href="https://www.gov.uk/standard-visitor" target="_blank" rel="noopener">gov.uk/standard-visitor</a> · verified 5 days ago</div></div><span class="tag warn">Required</span></div>
+        <div class="doc-row"><span class="dic">🛡</span><div class="dinfo"><div class="dname">Travel insurance</div><div class="dreq">Not mandatory for the UK, but strengthens the visa application. ₹1,200–1,800 per person.</div></div><span class="tag">Recommended</span></div>
+      </div>
+    </div>
+
+    <div class="trav">
+      <div class="trav-head"><span class="pic">A</span><div class="who"><h5>Arjun Raman</h5><div class="age">Adult · India</div></div><span class="tag warn">Action needed</span></div>
+      <div class="trav-body">
+        <div class="doc-row"><span class="dic">🛂</span><div class="dinfo"><div class="dname">Passport</div><div class="dreq">Valid to Aug 2028 — fine for this trip.</div></div><span class="tag good">Satisfied</span></div>
+        <div class="doc-row"><span class="dic">📄</span><div class="dinfo"><div class="dname">UK Standard Visitor visa</div><div class="dreq">Required. Apply together with Priya — same appointment slot.</div><div class="dsrc">Source: <a href="https://www.gov.uk/standard-visitor" target="_blank" rel="noopener">gov.uk/standard-visitor</a> · verified 5 days ago</div></div><span class="tag warn">Required</span></div>
+      </div>
+    </div>
+
+    <div class="trav" style="border-color:rgba(248,113,113,.35)">
+      <div class="trav-head"><span class="pic">M</span><div class="who"><h5>Maya Raman</h5><div class="age">11 years · India</div></div><span class="tag crit">Blocking</span></div>
+      <div class="trav-body">
+        <div class="doc-row"><span class="dic">⚠️</span><div class="dinfo"><div class="dname">Passport expires Jun 2027</div><div class="dreq"><b>Renew now.</b> She technically has validity for the stay, but no onward country will touch a passport inside 6 months of expiry — and you'd be renewing in a panic later this year anyway. ₹1,500 · 30 days.</div><div class="dsrc">Source: <a href="https://www.passportindia.gov.in" target="_blank" rel="noopener">passportindia.gov.in</a> · verified 12 days ago</div></div><span class="tag crit">Blocking</span></div>
+        <div class="doc-row"><span class="dic">📄</span><div class="dinfo"><div class="dname">UK Standard Visitor visa</div><div class="dreq">Required. Apply <b>after</b> the new passport arrives — the visa is tied to the passport number.</div></div><span class="tag warn">Blocked by passport</span></div>
+      </div>
+    </div>
+
+    <div class="trav" style="border-color:rgba(248,113,113,.35)">
+      <div class="trav-head"><span class="pic">V</span><div class="who"><h5>Vihaan Raman</h5><div class="age">6 years · India</div></div><span class="tag crit">Blocking</span></div>
+      <div class="trav-body">
+        <div class="doc-row"><span class="dic">❌</span><div class="dinfo"><div class="dname">No passport</div><div class="dreq"><b>Start here — it gates the visa.</b> Apply online at Passport Seva. Both parents' consent, Annexure D, birth certificate, address proof. ₹1,000 · 30–45 days (tatkal is faster).</div><div class="dsrc">Source: <a href="https://www.passportindia.gov.in" target="_blank" rel="noopener">passportindia.gov.in</a> · verified 12 days ago</div></div><span class="tag crit">Blocking</span></div>
+        <div class="doc-row"><span class="dic">📄</span><div class="dinfo"><div class="dname">UK Standard Visitor visa</div><div class="dreq">Required once the passport is issued. Children are charged the same £127.</div></div><span class="tag warn">Blocked by passport</span></div>
+      </div>
+    </div>
+
+    <div class="ess" style="margin-top:4px">
+      <h5>📋 Your sequence, with dates</h5>
+      <div class="pack">
+        <label><input type="checkbox"><span>Vihaan's first passport — submit by <b>15 Nov</b></span></label>
+        <label><input type="checkbox"><span>Maya's passport renewal — submit by <b>20 Dec</b></span></label>
+        <label><input type="checkbox"><span>All four UK visa applications — submit by <b>10 Feb</b></span></label>
+        <label><input type="checkbox"><span>Travel insurance for four — buy with the visa applications</span></label>
+      </div>
+      <div class="disclaim">Guidance only — confirm with the official source before you apply. Processing times change.</div>
+    </div>`;
+}
+
+function renderBudget(){
+  $('#budgetContent').innerHTML = `
+    <div class="bmeter">
+      <div class="top">
+        <div><div class="big mono">₹4,59,600</div><div class="cap">of your ₹4,20,000 cap</div></div>
+        <span class="tag warn">₹39,600 over</span>
+      </div>
+      <div class="bar">
+        <i style="width:48.7%; background:#8B5CF6"></i>
+        <i style="width:30.0%; background:#22D3EE"></i>
+        <i style="width:7.5%;  background:#34D399"></i>
+        <i style="width:6.1%;  background:#FBBF24"></i>
+        <i style="width:4.2%;  background:#EC4899"></i>
+        <i style="width:3.5%;  background:#6B7280"></i>
+      </div>
+      <div class="bar-legend">
+        <span><i class="sw" style="background:#8B5CF6"></i>Flights</span>
+        <span><i class="sw" style="background:#22D3EE"></i>Stay</span>
+        <span><i class="sw" style="background:#34D399"></i>Activities</span>
+        <span><i class="sw" style="background:#FBBF24"></i>Food</span>
+        <span><i class="sw" style="background:#EC4899"></i>Transport</span>
+        <span><i class="sw" style="background:#6B7280"></i>Visas</span>
+      </div>
+    </div>
+    <div class="brow"><span class="bname">Flights <span class="bpp">· ₹56,000 pp</span></span><span class="bamt mono">₹2,24,000</span></div>
+    <div class="brow"><span class="bname">Stay <span class="bpp">· 7 nights, ₹19,700/night</span></span><span class="bamt mono">₹1,38,000</span></div>
+    <div class="brow"><span class="bname">Activities & tickets <span class="bpp">· 6 paid of 21</span></span><span class="bamt mono">₹34,600</span></div>
+    <div class="brow"><span class="bname">Food <span class="bpp">· ₹1,000 pp per day</span></span><span class="bamt mono">₹28,000</span></div>
+    <div class="brow"><span class="bname">Local transport <span class="bpp">· contactless, under-11s free</span></span><span class="bamt mono">₹19,400</span></div>
+    <div class="brow"><span class="bname">UK visas <span class="bpp">· £127 × 4</span></span><span class="bamt mono">₹53,600</span></div>
+    <div class="brow"><span class="bname muted">Buffer (10%)</span><span class="bamt mono muted">₹42,000</span></div>
+
+    <div class="callout">
+      <h5>⚠️ The visas pushed you over — and I won't pretend otherwise</h5>
+      <p>The only honest fix is the 1-stop Qatar flight, saving ₹48,000 and bringing you ₹8,400 under cap. I'd advise against it: a 9-hour Doha layover each way with a 6-year-old costs you more than ₹48,000 in a different currency. Your call.</p>
+      <div style="display:flex; gap:9px; margin-top:12px; flex-wrap:wrap">
+        <button class="btn btn-sm">Switch to 1-stop, save ₹48,000</button>
+        <button class="btn btn-sm">Raise the cap to ₹4,60,000</button>
+      </div>
+    </div>`;
+}
+
+function renderEssentials(){
+  const wx = [['Sat','🌦','12°'],['Sun','☁️','14°'],['Mon','🌧','11°'],['Tue','☀️','13°'],['Wed','☀️','15°'],['Thu','🌦','12°'],['Fri','☁️','14°']];
+  $('#essContent').innerHTML = `
+    <div class="ess-grid">
+      <div class="ess">
+        <h5>🌤 Weather · 11–18 April</h5>
+        <div class="wx">${wx.map(w => `<div><div class="d">${w[0]}</div><div style="font-size:17px">${w[1]}</div><div class="t">${w[2]}</div></div>`).join('')}</div>
+        <div class="tiny muted" style="margin-top:11px">Live forecast — rain on 4 of your 8 days. Layers, not one coat.</div>
+      </div>
+
+      <div class="ess">
+        <h5>🎒 Packing list · 42 items</h5>
+        <div class="pack">
+          <div class="pack-grp">Everyone</div>
+          <label><input type="checkbox" checked><span>Passports + visa letters (print a copy)</span></label>
+          <label><input type="checkbox"><span>Type G power adapter ×2</span></label>
+          <label><input type="checkbox"><span>An actual umbrella, not a hood</span></label>
+          <label><input type="checkbox"><span>Layers — 11–15 °C, not one warm coat</span></label>
+          <div class="pack-grp">Vihaan (6)</div>
+          <label><input type="checkbox"><span>Shoes he can walk 5 km in</span></label>
+          <label><input type="checkbox"><span>Snacks for the museum queues</span></label>
+          <label><input type="checkbox"><span>Tablet + downloaded films for the flight</span></label>
+          <div class="pack-grp">Maya (11)</div>
+          <label><input type="checkbox"><span>Zip Oyster photocard (order 4 weeks ahead)</span></label>
+          <label><input type="checkbox"><span>Refillable water bottle</span></label>
+        </div>
+      </div>
+
+      <div class="ess">
+        <h5>💱 Money</h5>
+        <div class="kv"><span class="k">Rate today</span><span class="v mono">£1 ≈ ₹112.40</span></div>
+        <div class="kv"><span class="k">Cash to carry</span><span class="v">£150–200</span></div>
+        <div class="kv"><span class="k">Cards</span><span class="v">Contactless everywhere, buses included</span></div>
+        <div class="kv"><span class="k">Best option</span><span class="v">Forex card — ~3% better than credit</span></div>
+        <div class="tiny muted" style="margin-top:10px">Rate as of 2 min ago. Do not change money at the airport.</div>
+      </div>
+
+      <div class="ess">
+        <h5>📶 Connectivity</h5>
+        <div class="kv"><span class="k">eSIM · 10 GB, 8 days</span><span class="v mono">₹900</span></div>
+        <div class="kv"><span class="k">Local SIM on arrival</span><span class="v mono">₹1,400</span></div>
+        <div class="kv"><span class="k">Indian plan roaming</span><span class="v mono">₹3,600</span></div>
+        <div class="tiny muted" style="margin-top:10px">Install the eSIM before you fly — it activates when you land.</div>
+      </div>
+
+      <div class="ess">
+        <h5>🆘 Emergency</h5>
+        <div class="kv"><span class="k">Police / ambulance / fire</span><span class="v mono">999</span></div>
+        <div class="kv"><span class="k">Non-emergency medical</span><span class="v mono">111</span></div>
+        <div class="kv"><span class="k">High Commission of India</span><span class="v mono">+44 20 7836 8484</span></div>
+        <div class="kv"><span class="k">Address</span><span class="v">India House, Aldwych, WC2B 4NA</span></div>
+      </div>
+
+      <div class="ess">
+        <h5>✦ Things only a local would tell you</h5>
+        <div class="pack" style="gap:10px">
+          <label style="cursor:default"><span>Under-11s travel free on the Tube with you — Vihaan rides free, Maya needs a Zip card. Saves about ₹6,000.</span></label>
+          <label style="cursor:default"><span>Most major museums are free entry. London is kinder to family budgets than its reputation.</span></label>
+          <label style="cursor:default"><span>Pre-book the Tower and the Eye. In April school holidays the queue is its own punishment.</span></label>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ---------- the scripted turns ---------- */
+async function turn1(){
+  setState('Extracting', 'ai');
+  const b = aiShell();
+  await sleep(850);
+  await stream(b, `
+    <p>Lovely — a week in London with the family. I can already see a good shape for this.</p>
+    <p>Two things and I'll have a plan on screen:</p>
+    <ol>
+      <li><b>When</b> are you thinking? Any month works — I'll find the best week.</li>
+      <li><b>How old are the kids?</b> It genuinely changes the plan — walking distances, which museums, and hotel room rules.</li>
+    </ol>
+    <p><em>While you answer: flying from <b>Bengaluru</b> and working to a <b>mid-range budget (~₹4.2L)</b>, both from your profile. Say the word if either is wrong.</em></p>
+  `);
+  setState('Waiting on you', '');
+  quickReplies([{label:'Second week of April. Kids are 6 and 11.', step:'2'}]);
+}
+
+async function turn2(){
+  setState('Building', 'ai');
+  $('#wsTitle').textContent = 'London · 11–18 April';
+  $('#wsSub').textContent = '4 travellers · mid-range · 7 nights';
+  $('#sheetLabel').textContent = 'London · 11–18 April';
+
+  await toolRun([
+    {label:'Searching 42 airlines',                 done:'7 flight options',   ms:1100},
+    {label:'Finding family stays in central London',done:'23 properties',      ms:950},
+    {label:"Checking what's on 11–18 April",        done:'9 events',           ms:700},
+    {label:'Pulling opening hours and ticket rules',done:'31 places',          ms:850},
+    {label:'Checking entry requirements IN → GB',   done:'1 issue found',      ms:1000, warn:true}
+  ]);
+
+  /* skeletons, then the real plan — progressive reveal */
+  $('#itinEmpty').style.display = 'none';
+  $('#itinContent').innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  tabTo('itin');
+  await sleep(900);
+  renderDays(); renderFlights(); renderStays(); renderDocs(); renderBudget(); renderEssentials();
+  $('#sheetTag').textContent = 'tap to open';
+
+  const b = aiShell();
+  await sleep(300);
+  await stream(b, `
+    <p>Perfect — <b>11–18 April</b>, two adults, a 6-year-old and an 11-year-old. Here's your week.</p>
+    <p>I've kept it to <b>three anchors a day</b> with a <b>5 km walking cap</b> because of your 6-year-old, and left <b>Day 5 deliberately light</b> — day four of a family trip is when everyone gets tired.</p>
+    <ul>
+      <li><b>Flights</b> — BLR→LHR direct on British Airways, ₹2,24,000 for four. Not the cheapest, but the cheap one has a 9-hour Doha layover, which with a 6-year-old is a false economy.</li>
+      <li><b>Stay</b> — 2-bedroom apartment in South Kensington, ₹1,38,000 for 7 nights. Walking distance to three of your museums, and a kitchen matters more than you'd think with young kids.</li>
+      <li><b>Budget</b> — ₹4,06,000 of your ₹4,20,000, buffer intact.</li>
+      <li><b>⚠ One thing needs your attention</b> — I've found a passport issue, pinned to the top of Documents.</li>
+    </ul>
+    <p>Want me to walk you through the passport issue first, or look at the week?</p>
+  `);
+  setState('Ready', 'good');
+  quickReplies([
+    {label:'The passport issue', step:'3'},
+    {label:'Show me the week',   step:'itin'},
+    {label:'Make it cheaper',    step:'cheap'}
+  ]);
+}
+
+async function turn3(){
+  setState('Checking rules', 'ai');
+  tabTo('docs');
+  const b = aiShell();
+  await sleep(700);
+  await stream(b, `
+    <p>Here's the position for each of you, travelling <b>11 April 2027</b>:</p>
+    <table>
+      <tr><th>Traveller</th><th>Passport</th><th>Status</th></tr>
+      <tr><td>You</td><td>Valid to Mar 2030 ✅</td><td>Visa needed</td></tr>
+      <tr><td>Arjun</td><td>Valid to Aug 2028 ✅</td><td>Visa needed</td></tr>
+      <tr><td>Maya (11)</td><td>Expires Jun 2027 ⚠️</td><td><b>Blocking</b></td></tr>
+      <tr><td>Vihaan (6)</td><td>No passport ❌</td><td><b>Blocking</b></td></tr>
+    </table>
+    <p><b>Two blockers, both solvable — you have 27 weeks.</b></p>
+    <ol>
+      <li><b>Vihaan has no passport.</b> Apply online at Passport Seva: both parents' consent, Annexure D, birth certificate, address proof. ₹1,000, 30–45 days. Start here — it gates the visa.</li>
+      <li><b>Maya's passport expires June 2027.</b> Renew now — ₹1,500, 30 days. She technically has validity, but you'd be renewing in a panic later this year anyway.</li>
+      <li><b>All four need a UK Standard Visitor visa.</b> £127 each (≈₹53,600 total), biometrics at VFS Bengaluru, 3 weeks. Apply <em>after</em> the passports land — the visa is tied to the passport number. I've added it to your budget.</li>
+    </ol>
+    <p><b>Your sequence:</b> Vihaan's passport → Maya's renewal → all four visas → done by early February, two months of slack.</p>
+    <p class="src">Sources: <a href="https://www.passportindia.gov.in" target="_blank" rel="noopener">passportindia.gov.in</a> · verified 12 days ago · <a href="https://www.gov.uk/standard-visitor" target="_blank" rel="noopener">gov.uk/standard-visitor</a> · verified 5 days ago</p>
+    <p>Shall I put that in a checklist with dates, and would you like help with the applications?</p>
+    <div class="disclaim">Guidance only — confirm with the official source before you apply.</div>
+  `);
+  setState('Action needed', 'crit');
+  quickReplies([
+    {label:'Yes — and my son hates long museum days', step:'4'},
+    {label:'Back to the week', step:'itin'}
+  ]);
+}
+
+async function turn4(){
+  setState('Updating plan', 'ai');
+  tabTo('itin');
+  const b = aiShell();
+  await sleep(700);
+  await stream(b, `
+    <p>Noted — <b>no museum day longer than 2 hours</b> while he's with you. I've reworked Days 2 and 4; everything else stands, and your Tower of London slot is untouched.</p>
+    <ul>
+      <li><b>Day 2 was</b> British Museum (3.5 h) → lunch → National Gallery</li>
+      <li><b>Day 2 is now</b> British Museum — 2 h, Egypt and the mummies only → lunch in Russell Square → <b>Diana Memorial Playground</b>. He'll remember this longer than the museum.</li>
+      <li><b>Day 4</b> swapped the V&A for the <b>Natural History Museum</b> — dinosaurs hold a 6-year-old for exactly the 90 minutes you need, and it's 8 minutes from your apartment.</li>
+    </ul>
+    <p>Checklist added with dates: Vihaan's passport by <b>15 Nov</b>, Maya's by <b>20 Dec</b>, visas submitted by <b>10 Feb</b>.</p>
+    <p>Day 5 is still free. Leave it free, or pencil in Windsor as an optional day trip?</p>
+  `);
+  setState('Ready', 'good');
+  quickReplies([
+    {label:'Leave it free. What else do I need to sort out?', step:'5'},
+    {label:'Pencil in Windsor', step:'itin'}
+  ]);
+}
+
+async function turn5(){
+  setState('Covering the tail', 'ai');
+  tabTo('ess');
+  const b = aiShell();
+  await sleep(700);
+  await stream(b, `
+    <p>Leaving Day 5 free. Everything else, ordered by when you need to act:</p>
+    <p><b>Now, with the visas</b></p>
+    <ul><li><b>Travel insurance</b> — not legally required for the UK, but your visa application is stronger with it, and a family medical claim in London without cover is genuinely frightening. ₹4,800–7,200 for four.</li></ul>
+    <p><b>Two weeks before</b></p>
+    <ul>
+      <li><b>Money</b> — £1 ≈ ₹112 today. Carry <b>£150–200 cash</b>; everything else is contactless, buses included. Don't change money at the airport. A forex card beats your credit card by ~3%.</li>
+      <li><b>Transport</b> — just tap your phone. Daily caps apply automatically. Under-11s ride free with you, so Vihaan travels free and Maya needs a Zip card. Saves about ₹6,000 across the week.</li>
+    </ul>
+    <p><b>A few days before</b></p>
+    <ul>
+      <li><b>Connectivity</b> — eSIM is cheapest: 10 GB, 8 days, ₹900. Install before you fly; it activates on landing. Roaming is roughly 4× that.</li>
+      <li><b>Packing list</b> — 42 items for 9–15 °C with rain on 4 days, grouped by person, including the things people forget: layers not one coat, an actual umbrella, shoes Vihaan can walk 5 km in, a Type G adapter, and your visa letters.</li>
+    </ul>
+    <p><b>Worth knowing</b></p>
+    <ul>
+      <li>Pre-book the Tower and the London Eye — both sell out in April school holidays.</li>
+      <li>Most major museums are free entry. London is kinder to family budgets than its reputation.</li>
+      <li><b>Emergency:</b> 999 · Indian High Commission +44 20 7836 8484 — both in Essentials.</li>
+    </ul>
+    <p>That's the whole trip covered. Ready for me to put it together as your final package?</p>
+  `);
+  setState('Ready to package', 'good');
+  quickReplies([
+    {label:'Generate my travel package', step:'6'},
+    {label:'Change something first', step:'itin'}
+  ]);
+}
+
+async function turn6(){
+  setState('Packaging', 'ai');
+  const b = aiShell();
+  await sleep(600);
+  await stream(b, `
+    <p><b>Your London package is ready.</b> ✨</p>
+    <ul>
+      <li>7-day itinerary, 21 activities, route-optimised</li>
+      <li>Flights, stay, documents, budget and essentials — all in</li>
+      <li>Budget: ₹4,59,600 of ₹4,20,000. The visas pushed you ₹39,600 over; the only honest fix is the 1-stop flight, and I'd advise against it with a 6-year-old. Your call.</li>
+    </ul>
+    <p>Opening it for you now. I'll keep an eye on this trip — flight prices move, and I'll tell you if yours does.</p>
+  `);
+  setState('Packaged', 'good');
+  await sleep(900);
+  go('package');
+}
+
+async function turnCheaper(){
+  setState('Re-deriving', 'ai');
+  tabTo('budget');
+  const b = aiShell();
+  await sleep(700);
+  await stream(b, `
+    <p>I can get you <b>₹48,000</b> back, but only one way, and I don't love it.</p>
+    <ul>
+      <li><b>The 1-stop Qatar flight</b> saves ₹48,000 and puts you ₹8,400 <em>under</em> cap. It also adds a 9-hour Doha layover each way with a 6-year-old.</li>
+      <li><b>What I won't touch:</b> your locked Tower of London slot, and the apartment — moving to the cheaper Premier Inn saves ₹34,000 but adds 25 minutes to every museum day and loses the kitchen.</li>
+    </ul>
+    <p>Everything else is already near the floor: six of 21 activities are paid, the rest are free museums, and transport is capped by the contactless daily limit.</p>
+    <p>Honest answer: raising the cap by ₹40,000 buys you a direct flight with young children. That's usually the better trade. Want me to switch anyway?</p>
+  `);
+  setState('Ready', 'good');
+  quickReplies([
+    {label:'Keep the direct flight', step:'5'},
+    {label:'Switch to 1-stop', step:'5'}
+  ]);
+}
+
+/* step dispatcher */
+const STEPS = {'2':turn2, '3':turn3, '4':turn4, '5':turn5, '6':turn6, 'cheap':turnCheaper};
+document.addEventListener('click', async e => {
+  const c = e.target.closest('[data-step]');
+  if(!c || busy) return;
+  const step = c.dataset.step;
+  const label = c.textContent;
+  c.closest('.quick').remove();
+  if(step === 'itin'){ tabTo('itin'); $('#artifact').classList.add('open'); $('#sheetTag').textContent='tap to close'; return; }
+  busy = true;
+  userMsg(label);
+  await (STEPS[step] || turn2)();
+  busy = false;
+});
+
+/* kick off from any entry point */
+async function startDemo(src){
+  if(busy) return;
+  const typed = (src && src.dataset && src.dataset.prompt)
+    || $('#heroInput').value.trim()
+    || $('#dashInput').value.trim()
+    || PROMPTS[0];
+  thread.innerHTML = '';
+  $('#itinContent').innerHTML = '';
+  $('#itinEmpty').style.display = '';
+  busy = true;
+  userMsg(typed);
+  await turn1();
+  busy = false;
+}
+
+/* free-text send → nudge back onto the script */
+async function manualSend(){
+  const ta = $('#wsInput');
+  const v = ta.value.trim();
+  if(!v || busy) return;
+  ta.value = ''; ta.style.height='auto';
+  busy = true;
+  userMsg(v);
+  const b = aiShell();
+  await sleep(700);
+  await stream(b, `
+    <p>This is a UI prototype, so I'm following a scripted conversation rather than thinking freely.</p>
+    <p>Tap one of the suggested replies to see the real flow — including the passport case, which is the part worth watching.</p>
+  `);
+  quickReplies([
+    {label:'Second week of April. Kids are 6 and 11.', step:'2'},
+    {label:'The passport issue', step:'3'},
+    {label:'Generate my travel package', step:'6'}
+  ]);
+  busy = false;
+}
+$('#wsSend').addEventListener('click', manualSend);
+$('#wsInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); manualSend(); }
+});
+$$('#heroInput, #dashInput').forEach(ta => {
+  ta.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); go('workspace'); startDemo(null); }
+  });
+});
+
+/* ⌘K / Ctrl+K focuses the composer, the small touch that makes it feel built */
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault();
+    const active = $('.view.active').id;
+    const map = {'view-landing':'#heroInput','view-dashboard':'#dashInput','view-workspace':'#wsInput'};
+    const t = $(map[active] || '#heroInput');
+    if(t){ t.focus(); } else { go('dashboard'); $('#dashInput').focus(); }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,2315 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JourneyOS — PRD</title>
+<meta name="description" content="Product Requirements Document for JourneyOS, the AI travel operating system.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0B0F; --bg-elev:#101219;
+  --surface:rgba(255,255,255,.04); --surface-2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.16);
+  --text-1:#F4F5F7; --text-2:#9BA1B0; --text-3:#6B7280;
+  --accent-from:#8B5CF6; --accent-to:#22D3EE; --accent:#8B5CF6;
+  --accent-soft:rgba(139,92,246,.14);
+  --good:#34D399; --warn:#FBBF24; --crit:#F87171;
+  --mesh-1:rgba(139,92,246,.20); --mesh-2:rgba(34,211,238,.14);
+  --code-bg:rgba(255,255,255,.035);
+}
+:root[data-theme="light"]{
+  --bg:#FBFBFD; --bg-elev:#fff;
+  --surface:rgba(15,17,26,.028); --surface-2:rgba(15,17,26,.055);
+  --border:rgba(15,17,26,.10); --border-strong:rgba(15,17,26,.18);
+  --text-1:#0F111A; --text-2:#55607A; --text-3:#8A91A0;
+  --accent-soft:rgba(139,92,246,.10);
+  --good:#0F9B6C; --warn:#A96F00; --crit:#D93A3A;
+  --mesh-1:rgba(139,92,246,.12); --mesh-2:rgba(34,211,238,.10);
+  --code-bg:rgba(15,17,26,.035);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:80px}
+body{
+  margin:0; background:var(--bg); color:var(--text-1);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:15.5px; line-height:1.68; letter-spacing:-.009em;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(900px 620px at 8% -8%, var(--mesh-1), transparent 60%),
+             radial-gradient(760px 520px at 96% 4%, var(--mesh-2), transparent 62%);
+}
+:focus-visible{outline:2px solid var(--accent-to); outline-offset:3px; border-radius:4px}
+
+/* top bar */
+.bar{
+  position:sticky; top:0; z-index:60; display:flex; align-items:center; gap:14px;
+  padding:11px 22px; border-bottom:1px solid var(--border);
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+}
+.brand{display:flex; align-items:center; gap:10px; font-weight:650; letter-spacing:-.03em}
+.mark{
+  width:27px; height:27px; border-radius:9px; display:grid; place-items:center;
+  background:linear-gradient(135deg,var(--accent-from),var(--accent-to));
+  color:#0A0B0F; font-weight:800; font-size:13px;
+}
+.grad{background:linear-gradient(104deg,var(--accent-from),var(--accent-to));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.bar .sp{flex:1}
+.bar a, .bar button{
+  font:inherit; color:var(--text-2); text-decoration:none; cursor:pointer;
+  border:1px solid var(--border); background:var(--surface);
+  padding:7px 13px; border-radius:9px; font-size:13.5px; transition:all .15s;
+}
+.bar a:hover, .bar button:hover{color:var(--text-1); border-color:var(--border-strong)}
+.menu-btn{display:none}
+
+/* layout */
+.shell{display:grid; grid-template-columns:276px minmax(0,1fr); max-width:1400px; margin:0 auto}
+aside{
+  position:sticky; top:50px; align-self:start; height:calc(100vh - 50px);
+  overflow-y:auto; padding:26px 16px 40px; border-right:1px solid var(--border);
+}
+aside::-webkit-scrollbar{width:8px}
+aside::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:8px; border:2px solid transparent; background-clip:padding-box}
+.toc-h{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); padding:0 10px 10px}
+aside a{
+  display:block; padding:6px 10px; border-radius:7px; font-size:13.2px;
+  color:var(--text-2); text-decoration:none; line-height:1.4;
+  border-left:2px solid transparent; transition:all .14s;
+}
+aside a:hover{color:var(--text-1); background:var(--surface)}
+aside a.on{color:var(--text-1); background:var(--accent-soft); border-left-color:var(--accent)}
+aside a.sub{padding-left:22px; font-size:12.6px; color:var(--text-3)}
+
+main{padding:38px 46px 110px; min-width:0; max-width:900px}
+
+/* typography */
+h1{
+  font-family:'Fraunces',Georgia,serif; font-weight:600;
+  font-size:clamp(32px,4.6vw,46px); line-height:1.08; letter-spacing:-.035em; margin:0 0 6px;
+}
+h2{
+  font-family:'Fraunces',Georgia,serif; font-weight:600;
+  font-size:27px; letter-spacing:-.028em; line-height:1.2;
+  margin:58px 0 16px; padding-top:22px; border-top:1px solid var(--border);
+}
+h2:first-of-type{border-top:0; padding-top:0; margin-top:34px}
+h3{font-size:18.5px; font-weight:620; letter-spacing:-.022em; margin:34px 0 11px}
+h4{font-size:15.5px; font-weight:620; margin:24px 0 8px; color:var(--text-1)}
+p{margin:0 0 15px}
+a{color:var(--accent-to); text-decoration:none; border-bottom:1px solid rgba(34,211,238,.28)}
+a:hover{border-bottom-color:var(--accent-to)}
+strong{font-weight:620; color:var(--text-1)}
+em{color:var(--text-2)}
+ul,ol{margin:0 0 16px; padding-left:22px}
+li{margin:5px 0}
+li::marker{color:var(--accent-to)}
+hr{border:0; border-top:1px solid var(--border); margin:40px 0}
+
+blockquote{
+  margin:20px 0; padding:15px 19px; border-radius:12px;
+  background:var(--accent-soft); border-left:3px solid var(--accent);
+  color:var(--text-1);
+}
+blockquote p:last-child{margin:0}
+
+/* tables */
+.tw{overflow-x:auto; margin:20px 0; border:1px solid var(--border); border-radius:13px; background:var(--surface)}
+table{width:100%; border-collapse:collapse; font-size:13.8px}
+thead th{
+  text-align:left; font-size:11.4px; font-weight:700; letter-spacing:.055em; text-transform:uppercase;
+  color:var(--text-3); padding:11px 14px; background:var(--surface-2);
+  border-bottom:1px solid var(--border); white-space:nowrap;
+}
+td{padding:11px 14px; border-top:1px solid var(--border); vertical-align:top; line-height:1.55}
+tbody tr:hover{background:var(--surface-2)}
+td code{white-space:nowrap}
+
+/* code */
+code{
+  font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.875em; padding:2px 6px; border-radius:5px;
+  background:var(--code-bg); border:1px solid var(--border); color:var(--text-1);
+}
+pre{
+  margin:20px 0; padding:17px 19px; border-radius:13px; overflow-x:auto;
+  background:var(--code-bg); border:1px solid var(--border);
+  font-size:13px; line-height:1.62;
+}
+pre code{background:none; border:0; padding:0; font-size:13px; white-space:pre}
+pre::-webkit-scrollbar{height:9px}
+pre::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:8px}
+
+/* mermaid */
+.mermaid{
+  margin:24px 0; padding:22px 18px; border-radius:14px; text-align:center;
+  background:var(--surface); border:1px solid var(--border); overflow-x:auto;
+}
+.mermaid svg{max-width:100%; height:auto}
+
+/* checkbox lists from markdown */
+li input[type=checkbox]{
+  appearance:none; width:15px; height:15px; border-radius:4px; margin-right:7px;
+  border:1.5px solid var(--border-strong); vertical-align:-2px;
+}
+.toolbar{display:flex; gap:9px; flex-wrap:wrap; margin:0 0 26px}
+.toolbar a{
+  font-size:13px; padding:7px 13px; border-radius:9px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text-2); border-bottom-color:var(--border);
+}
+.toolbar a:hover{color:var(--text-1); border-color:var(--accent)}
+.doc-meta{color:var(--text-2); font-size:14.5px; margin-bottom:26px}
+
+@media (max-width:1040px){
+  .shell{grid-template-columns:1fr}
+  aside{
+    position:fixed; left:0; top:50px; bottom:0; width:280px; z-index:55;
+    background:var(--bg-elev); transform:translateX(-100%);
+    transition:transform .25s cubic-bezier(.2,.7,.3,1); border-right:1px solid var(--border-strong);
+  }
+  aside.open{transform:none}
+  main{padding:30px 22px 90px}
+  .menu-btn{display:block}
+  h2{font-size:23px}
+}
+@media (max-width:620px){
+  main{padding:24px 16px 80px}
+  h1{font-size:28px}
+  .bar{padding:10px 14px}
+  .bar .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  html{scroll-behavior:auto}
+}
+@media print{
+  .bar,aside,.toolbar{display:none !important}
+  .shell{display:block}
+  main{max-width:none; padding:0}
+  body{background:#fff; color:#000; font-size:10.5pt}
+  h2{page-break-after:avoid; border-top:1px solid #ccc}
+  .tw,pre,.mermaid{page-break-inside:avoid}
+  a{color:#000; border:0}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button class="menu-btn" id="menuBtn" aria-label="Toggle contents">☰</button>
+  <div class="brand"><span class="mark">J</span><span class="hide-sm">Journey<span class="grad">OS</span> · PRD</span></div>
+  <div class="sp"></div>
+  <a href="ui-prototype.html" class="hide-sm">UI prototype ↗</a>
+  <a href="PRD.md" class="hide-sm">Markdown</a>
+  <button id="themeBtn" aria-label="Toggle colour theme" title="Toggle theme">◐</button>
+  <button onclick="window.print()" aria-label="Print or save as PDF">⎙</button>
+</div>
+
+<div class="shell">
+  <aside id="toc"><div class="toc-h">Contents</div></aside>
+  <main>
+    <div class="toolbar">
+      <a href="ui-prototype.html">▶ Open the interactive UI prototype</a>
+      <a href="IMPLEMENTATION.md">IMPLEMENTATION.md</a>
+      <a href="schema.sql">schema.sql</a>
+      <a href="api.md">api.md</a>
+    </div>
+    <article id="doc">Rendering…</article>
+  </main>
+</div>
+
+<script id="md" type="text/markdown"># JourneyOS — Product Requirements Document
+
+**Your AI Travel Operating System**
+
+| Field | Value |
+|---|---|
+| Version | 1.0 — build-ready |
+| Date | 2026-10-03 |
+| Build budget | **1 day (8–10 hours), 1–2 developers** |
+| Primary bet | The **UI** is the product. Beautiful, fast, obviously-AI-native. |
+| Deliverables | `PRD.md` · `PRD.html` · `ui-prototype.html` · `IMPLEMENTATION.md` · `schema.sql` · `api.md` |
+
+> **Reading this document.** It is deliberately simple. Anything that cannot be built in a day sits in Phase 2 or 3 and is clearly marked. If a section feels thin, that is the point — scope discipline is the feature.
+
+---
+
+## Table of Contents
+
+[1. Executive Summary](#1-executive-summary) · [2. Product Vision](#2-product-vision) · [3. User Personas](#3-user-personas) · [4. User Stories](#4-user-stories) · [5. Functional Requirements](#5-functional-requirements) · [6. Non-Functional Requirements](#6-non-functional-requirements) · [7. UI/UX Flow](#7-uiux-flow) · [8. Screen-by-Screen Breakdown](#8-screen-by-screen-breakdown) · [9. Database Design](#9-database-design) · [10. ER Diagram](#10-er-diagram) · [11. System Architecture](#11-system-architecture) · [12. AI Architecture](#12-ai-architecture) · [13. LLM Workflow](#13-llm-workflow) · **[13A. AI Chatbot Behaviour Spec](#13a-ai-chatbot-behaviour-specification)** · [14. RAG Workflow](#14-rag-workflow) · [15. API Design](#15-api-design) · [16. Microservice Design](#16-microservice-design) · [17. Cloud Architecture](#17-cloud-architecture) · [18. Security Architecture](#18-security-architecture) · [19. Data Models](#19-data-models) · [20. Feature Prioritization](#20-feature-prioritization) · [21. MVP Scope](#21-mvp-scope-the-one-day-build) · [22. Phase 2](#22-phase-2-features) · [23. Phase 3](#23-phase-3-features) · [24. Risks](#24-risks-and-mitigation) · [25. Monetization](#25-monetization-strategy) · [26. Competitors](#26-competitor-analysis) · [27. Success Metrics](#27-success-metrics) · [28. Roadmap](#28-development-roadmap) · [29. Team](#29-team-structure) · [30. Tech Stack](#30-technology-stack-recommendation) · [31. Appendix](#31-appendix)
+
+---
+
+## 1. Executive Summary
+
+JourneyOS turns one sentence — *"Plan a 7-day London vacation for me, my wife and two kids"* — into a complete day-by-day travel plan with flights, hotels, budget, documents and a packing list.
+
+**The problem.** Planning a trip means 20 browser tabs that do not talk to each other. Change the dates and half the research is void.
+
+**The product.** One chat box. The AI asks only what it genuinely needs, then builds a living plan in a side panel: itinerary, flights, stays, documents, budget, essentials. Edit anything by just saying so.
+
+**The one-day build.** A single Next.js app, one AI call chain with tool calling, a local Postgres database with in-house auth, seeded supplier data for flights and hotels, and one genuinely beautiful interface. No microservices, no booking, no payments.
+
+| What we build today | What we fake today | What we defer |
+|---|---|---|
+| Auth, dashboard, AI chat with voice, itinerary engine, 6-tab trip workspace, documents/visa logic, budget, PDF-ready view | Flight and hotel inventory (seeded realistic JSON), events (curated seed) | Real booking, payments, collaboration, native app, RAG at scale |
+
+**Why the UI is the priority.** Every competitor has data; almost none feel good to use. In a one-day build the differentiator is not supply breadth — it is that the product looks and moves like a 2026 product: dark-first, glass surfaces, streaming text, cards that fill progressively, zero dead spinners.
+
+**Success for the day.** A visitor can land, sign up, type one sentence, and walk away with a plan they would actually use — in under three minutes, on a phone.
+
+---
+
+## 2. Product Vision
+
+**Vision.** You describe the trip you want. JourneyOS holds the whole thing — plan, documents, budget, changes — and tells you what needs your attention.
+
+### Horizons
+
+| Horizon | When | What it is |
+|---|---|---|
+| **H1 — Planner** | Today | AI that produces plans better than a human with 20 tabs |
+| **H2 — Agent** | 3–9 months | AI that books flights, hotels, activities, insurance |
+| **H3 — Operating System** | 9–24 months | AI that operates the live trip: rebooking, disruptions, groups |
+
+### Design principles
+
+1. **Intent in, plan out.** No search forms. Ever.
+2. **One question at a time.** Maximum two missing facts per turn.
+3. **Never block on perfect info.** Draft with stated assumptions, then refine.
+4. **Show the reason.** Every recommendation carries a one-line *why*.
+5. **The plan is the deliverable.** The user must always be able to leave with a PDF.
+6. **Compliance is automatic.** Passport and visa surface before the user thinks to ask.
+7. **Beautiful by default.** Motion, spacing and contrast are requirements, not polish.
+
+### Non-goals
+
+Own inventory · payments in v1 · social feed · native app · visa adjudication or legal advice.
+
+---
+
+## 3. User Personas
+
+| Persona | Who | Trip shape | Core need | Must-have feature |
+|---|---|---|---|---|
+| **Priya** — Family Planner *(primary)* | 38, PM, 2 kids (6, 11) | 7–12 days, $4k–9k | Keep kids engaged, paperwork certain, budget held | Kid-friendly activities + passport/visa check |
+| **Arjun & Meera** — Couple *(primary)* | 29/31, dual income | 4–8 days, $2k–5k | Somewhere interesting on fixed leave dates | Destination suggestion + events that week |
+| **Dev** — Solo | 26, designer, budget-led | 5–14 days, $900–2.5k | Max experience per dollar, stay safe | Budget stays, hidden gems, emergency info |
+| **Sandeep** — Business | 44, sales director | 2–4 days, employer-paid | Fit around fixed meetings | Transit-time optimisation, clean export |
+| **Nalini** — Luxury *(highest ARPU)* | 52, business owner | 7–21 days, $15k+ | Curated, nothing mediocre, a human to call | Luxury tier, private transport, concierge |
+| **Zara** — Frequent international | 35, remote consultant | 10–40 days, multi-country | Visa validity and day-count tracking | Document vault, Schengen calculator *(Ph. 2)* |
+| **Rohit** — Admin *(internal)* | Ops | — | Watch API spend, debug a bad plan | Admin dashboard |
+
+**Day-one optimisation target:** Priya. If the family flow is delightful, the rest degrade gracefully.
+
+---
+
+## 4. User Stories
+
+P0 = ships today. P1 = ships today if time. P2 = later.
+
+| ID | Story | P | Acceptance criteria |
+|---|---|---|---|
+| US-1 | Sign up with email or Google so my trips are saved | P0 | **Given** valid details **When** I submit **Then** account created and I land on the dashboard in under 2 s |
+| US-2 | Reset a forgotten password | P0 | Single-use link, 60-min expiry, same message for unknown emails |
+| US-3 | Describe my trip in plain language | P0 | **Given** "7-day London trip, me, wife, two kids" **When** sent **Then** destination, duration and party are extracted and only missing facts are asked |
+| US-4 | Speak instead of type | P0 | Hold mic ≤60 s, transcript appears in composer within 2 s, editable before send |
+| US-5 | The AI remembers the whole conversation | P0 | A constraint stated at turn 2 is still honoured at turn 15 without repeating it |
+| US-6 | Suggested prompts when I don't know what to ask | P0 | 4–6 tappable chips on empty state; tapping sends immediately |
+| US-7 | A day-by-day plan that is physically possible | P0 | ≤4 anchors/day, travel time shown between stops, nothing scheduled while closed |
+| US-8 | Flight options ranked by value, not just price | P0 | ≥5 options, each with price, duration, stops, baggage, value score; one marked *Best value* with a reason |
+| US-9 | Hotels that fit my party and tier | P0 | Every result sleeps the party, shows all-in stay total and distance to plan centre |
+| US-10 | Know what documents I need | P0 | Per-traveller passport/visa/insurance list with source link and last-verified date |
+| US-11 | Be warned if a passport is too close to expiry | P0 | Blocking alert at the top of the trip stating the exact shortfall in days |
+| US-12 | Help applying for a passport if I don't have one | P0 | Country route, documents, fee band, processing time, official link — no uploads required |
+| US-13 | Budget breakdown I can trust | P0 | Six categories + 10% buffer against my cap; overrun names the category that caused it |
+| US-14 | Packing list, weather, currency, emergency contacts | P0 | Generated from destination, dates, activities and party |
+| US-15 | Events happening while I am there | P1 | Only events inside the trip window, with venue, time, price band |
+| US-16 | Move an activity and have the day re-flow | P1 | Drop into another day → both days recompute within 2 s, conflicts flagged |
+| US-17 | Download the plan as a PDF | P0 | Cover, day pages, flights, stays, documents, budget; readable offline |
+| US-18 | Share a read-only link with my spouse | P1 | No login needed, excludes documents and personal data, revocable |
+| US-19 | Admin: see API spend, errors and a user's conversation | P1 | Per-provider latency/error/spend; conversation replay is audit-logged |
+
+---
+
+## 5. Functional Requirements
+
+| ID | Module | Requirement | P |
+|---|---|---|---|
+| FR-1.1 | Auth | Email + password signup; bcrypt (cost 10); min 10 chars | P0 |
+| FR-1.2 | Auth | Google OAuth; links to existing account on verified-email match | P0 |
+| FR-1.3 | Auth | Forgot/reset password, single-use 60-min token | P0 |
+| FR-1.4 | Auth | Session: short-lived JWT + rotating refresh; logout all devices | P0 |
+| FR-2.1 | AI Chat | Streaming text chat per trip thread (SSE), first token ≤1.5 s | P0 |
+| FR-2.2 | AI Chat | Voice input via Web Speech API, transcript editable before send | P0 |
+| FR-2.3 | AI Chat | Conversation memory for the whole trip thread | P0 |
+| FR-2.4 | AI Chat | Slot filling: ≤2 questions per turn, never re-ask a known slot | P0 |
+| FR-2.5 | AI Chat | Tool calling — all facts come from tools, never model memory | P0 |
+| FR-2.6 | AI Chat | Suggested prompts, context-aware | P0 |
+| FR-2.7 | AI Chat | Stop generation / regenerate | P1 |
+| FR-3.1 | Planner | Create/edit/archive trip; auto-created on first utterance | P0 |
+| FR-3.2 | Planner | Destination resolution to canonical city + IATA + coordinates | P0 |
+| FR-3.3 | Planner | Dates: exact, or month + duration, or flexible | P0 |
+| FR-3.4 | Planner | Budget cap with live allocation across six categories | P0 |
+| FR-3.5 | Planner | Travellers: adults, children with age, nationality | P0 |
+| FR-3.6 | Planner | Interests + pace (relaxed / balanced / packed) caps activities per day | P0 |
+| FR-4.1 | Flights | Search return/one-way from seeded or live provider | P0 |
+| FR-4.2 | Flights | Value score over price, duration, stops, baggage; explainable | P0 |
+| FR-4.3 | Flights | Compare up to 3 side by side | P1 |
+| FR-5.1 | Hotels | Search by city, dates, occupancy; three price tiers | P0 |
+| FR-5.2 | Hotels | All-in stay total, rating, distance to itinerary centre, reason line | P0 |
+| FR-6.1 | Events | Date-bounded event list by category with venue and price band | P1 |
+| FR-7.1 | Attractions | Attractions with opening hours, typical duration, ticket need | P0 |
+| FR-7.2 | Attractions | Age-band suitability (toddler / child / teen / adult) | P0 |
+| FR-7.3 | Attractions | Hidden gems: high rating, below-median review volume | P1 |
+| FR-8.1 | Itinerary | Day-wise plan with morning/afternoon/evening slots, ≤4 anchors | P0 |
+| FR-8.2 | Itinerary | Geographic clustering per day | P0 |
+| FR-8.3 | Itinerary | Route order optimisation (nearest-neighbour + 2-opt) | P0 |
+| FR-8.4 | Itinerary | Opening-hours validation; zero activities while closed | P0 |
+| FR-8.5 | Itinerary | Travel mode + duration between consecutive stops | P0 |
+| FR-8.6 | Itinerary | Walking cap: 8 km/day, 5 km with a traveller under 10 | P0 |
+| FR-8.7 | Itinerary | Drag-and-drop re-order with re-flow | P1 |
+| FR-9.1 | Compliance | Visa requirement per nationality × destination, with source + verified date | P0 |
+| FR-9.2 | Compliance | Passport validity rule (6-month / 3-month / date-of-exit), shortfall in days | P0 |
+| FR-9.3 | Compliance | Insurance requirement flag with minimum cover | P0 |
+| FR-9.4 | Compliance | Per-traveller document checklist with status chips | P0 |
+| FR-9.5 | Compliance | Passport application guidance by country | P0 |
+| FR-9.6 | Compliance | Blocking severity pinned to the trip header until resolved | P0 |
+| FR-10.1 | Assistant | Packing list from weather, length, activities, party | P0 |
+| FR-10.2 | Assistant | Weather: live forecast inside 14 days, labelled normals beyond | P0 |
+| FR-10.3 | Assistant | Currency rate with timestamp + cash-vs-card note | P0 |
+| FR-10.4 | Assistant | Emergency numbers + embassy per nationality | P0 |
+| FR-10.5 | Assistant | eSIM / local SIM options with indicative pricing | P1 |
+| FR-11.1 | Workspace | Trip list with status filters | P0 |
+| FR-11.2 | Workspace | Autosave; every AI mutation is a restorable version | P1 |
+| FR-11.3 | Workspace | PDF export: cover, days, flights, stays, documents, budget | P0 |
+| FR-11.4 | Workspace | Read-only share link, revocable | P1 |
+| FR-11.5 | Workspace | Export .ics / JSON | P2 |
+| FR-12.1 | Admin | User search, detail, suspend; all admin access audit-logged | P1 |
+| FR-12.2 | Admin | Analytics: signups, trips, plans completed, acceptance rate | P1 |
+| FR-12.3 | Admin | Provider monitoring: volume, p95 latency, error rate, spend | P1 |
+| FR-12.4 | Admin | AI token/cost per conversation with a daily budget alert | P1 |
+
+---
+
+## 6. Non-Functional Requirements
+
+| ID | Requirement | Target |
+|---|---|---|
+| NFR-1 | Dashboard LCP on 4G mobile | ≤2.0 s p75 |
+| NFR-2 | Chat first token | ≤1.5 s p90 |
+| NFR-3 | Full itinerary generation | ≤25 s p90, **with content appearing from 3 s** |
+| NFR-4 | Flight / hotel search | ≤6 s / ≤5 s p90 |
+| NFR-5 | Initial JS bundle | ≤220 KB gzipped, enforced in CI |
+| NFR-6 | Mobile first | Designed at 390 px, usable at 320 px, no horizontal scroll |
+| NFR-7 | Accessibility | WCAG 2.2 AA: 4.5:1 contrast, visible focus, full keyboard operation |
+| NFR-8 | Screen readers | Chat uses a polite live region; streaming does not re-announce |
+| NFR-9 | Dark mode | Full parity, system default, manual override persisted |
+| NFR-10 | Motion | Honours `prefers-reduced-motion`; no meaning carried by motion alone |
+| NFR-11 | Availability | 99.9% monthly; any single provider outage degrades one panel, not the app |
+| NFR-12 | Security | TLS 1.3, AES-256 at rest, deny-by-default row-level security |
+| NFR-13 | Privacy | No passport number or full DOB in any prompt; export and delete on request |
+| NFR-14 | Grounding | 100% of prices, hours and visa rules traceable to a tool call |
+| NFR-15 | AI cost | ≤$1.10 per completed plan at p90 |
+| NFR-16 | Observability | One trace per chat turn spanning tool calls, model calls and DB writes |
+
+---
+
+## 7. UI/UX Flow
+
+The product is a **two-pane workspace**: conversation left, living trip artifact right. On mobile the artifact is a pull-up sheet. Everything else is secondary.
+
+```mermaid
+flowchart TD
+    A([Landing]) --> B{Account?}
+    B -- No --> C[Sign up / Google]
+    B -- Yes --> D[Log in]
+    C --> E[Onboarding: home city, nationality, style]
+    D --> F[Dashboard]
+    E --> F
+    F --> G[["AI composer<br/>text · voice · suggested prompts"]]
+    F --> H[Previous trips] --> W
+    G --> I[Intent extraction]
+    I --> J{Enough to draft?}
+    J -- No --> K[Ask 1-2 missing slots] --> I
+    J -- Yes --> L[Create trip + open workspace]
+    L --> M[Parallel discovery]
+    M --> M1[Flights] & M2[Stays] & M3[Attractions] & M4[Events] & M5[Weather]
+    M1 & M2 & M3 & M4 & M5 --> N[Itinerary engine<br/>cluster · route · time-fit]
+    N --> O[Budget allocation] --> W[(Trip workspace)]
+    W --> P[Compliance runs automatically]
+    P --> Q{Documents OK?}
+    Q -- No passport --> R[Passport assistance] --> U
+    Q -- Visa needed --> S[Visa requirements + checklist] --> U
+    Q -- Clear --> T[Mark satisfied] --> U
+    U[Document checklist] --> V[Packing · currency · SIM · emergency]
+    V --> X{Happy?}
+    X -- Refine --> G
+    X -- Yes --> Y[Final travel package]
+    Y --> Z1[PDF] & Z2[Share link] & Z3[Calendar]
+```
+
+### Planning-session state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Gathering: first utterance
+    Gathering --> Gathering: slot answered, more needed
+    Gathering --> Drafting: destination + duration + party known
+    Drafting --> Ready: discovery + itinerary done
+    Ready --> Refining: user asks for a change
+    Refining --> Ready: re-derive only what changed
+    Ready --> Blocked: blocking document issue
+    Blocked --> Ready: acknowledged or resolved
+    Ready --> Packaged: final package generated
+    Packaged --> Refining: later change
+    Packaged --> [*]
+```
+
+**Minimum slots to draft:** destination + duration + party. Everything else is defaulted *and the default is stated out loud*.
+
+### Interaction contract
+
+| Rule | Implementation |
+|---|---|
+| Progressive reveal | Skeleton day cards within 3 s; each fills as its data returns. No 25-second spinner. |
+| Explain, then offer | One-line reason on every card; *Why this?* expands sources. |
+| Chat drives, pane reflects | Pane edits echo into the thread as a system message. |
+| Interruptible | The user can type during generation; the instruction queues and applies. |
+| Mobile parity | Drag has a *Move to day…* menu alternative. |
+
+### Error states
+
+| Situation | What the user sees |
+|---|---|
+| Provider timeout | That card only: "Couldn't reach airline data — Retry". Plan stays intact. |
+| Nothing in budget | AI names the binding constraint, offers two relaxations (±2 days, or one tier down) |
+| Mic denied | Inline explainer; typing still works |
+| Stale visa rule | Amber "Verified 47 days ago — confirm with the official source" + link |
+| Offline | Banner + read-only plan; sends queue and retry |
+
+---
+
+## 8. Screen-by-Screen Breakdown
+
+Twelve screens ship today. The UI spec is the most detailed part of this document on purpose.
+
+### Visual direction
+
+Dark-first, high-contrast, generous spacing. Deep slate canvas, **glass cards** (blurred translucent surfaces with a 1 px light border), one violet-to-cyan gradient reserved for AI moments only, and type that does the hierarchy work. Reference points: Lovable, Linear, Vercel, Raycast, Arc. Light mode is a first-class mirror, not an afterthought.
+
+**Four rules that create the feel:**
+1. **One accent, used sparingly.** The gradient marks AI activity and the primary action. Nothing else.
+2. **Depth from blur and border, not shadow.** `backdrop-filter: blur(20px)` + `rgba(255,255,255,0.08)` border.
+3. **Motion with intent.** 150 ms for state, 250 ms for sheets, 400 ms stagger as cards arrive. Nothing bounces.
+4. **Empty states are designed.** Every empty panel teaches the next action.
+
+### Design tokens
+
+| Token | Dark | Light |
+|---|---|---|
+| `--bg` | `#0A0B0F` | `#FAFAFC` |
+| `--surface` | `rgba(255,255,255,0.04)` | `rgba(15,17,26,0.03)` |
+| `--border` | `rgba(255,255,255,0.09)` | `rgba(15,17,26,0.09)` |
+| `--text-primary` | `#F4F5F7` | `#0F111A` |
+| `--text-secondary` | `#9BA1B0` | `#5C6475` |
+| `--accent-from` → `--accent-to` | `#8B5CF6` → `#22D3EE` | same |
+| `--good` / `--warn` / `--critical` | `#34D399` / `#FBBF24` / `#F87171` | same |
+| Type | Inter 13 / 15 / 18 / 24 / 32 / 44, line-height 1.55 body | |
+| Radius | 10 controls, 16 cards, 999 chips | |
+| Spacing | 4 px base, 8 px rhythm, 16 px mobile gutter / 24 px desktop | |
+
+### Screens
+
+| ID | Screen | Purpose | Layout & key components | States |
+|---|---|---|---|---|
+| **S-01** | Landing | Convert in one sentence | Hero with a **live composer** (what you type carries into signup), 3-step explainer, sample itinerary, pricing, FAQ | default · prompt-entered (CTA becomes "Plan this trip") |
+| **S-02** | Sign Up | Account in 20 s | 420 px glass card, Google above the divider, email below, strength meter | idle · validating · error · duplicate (generic copy) |
+| **S-03** | Log In | Return in one action | Same card, "Forgot password?", "Remember device" | idle · invalid · locked with countdown |
+| **S-04** | Reset Password | Recover | Request → set-new on one route | sent · token expired |
+| **S-05** | Onboarding | Three facts that improve every later answer | One question per view: home city, nationality, travel style chips | step 1–3 · skipped (defaults stated later) |
+| **S-06** | Dashboard | Start or resume in one screen | Greeting · **composer as visual centre** · suggested prompt chips · "Continue planning" card · trips grid · upcoming-trip countdown with document alert | first-time · returning · has upcoming · blocking alert |
+| **S-07** | **Trip Workspace** | The core screen | lg: chat 38% / artifact 62%, draggable divider. sm: chat full, artifact as sheet (peek/half/full). Tabs: Itinerary · Flights · Stays · Documents · Budget · Essentials. `ToolActivityChip` shows "Checking visa rules IN → GB" | gathering · generating (skeletons) · ready · refining (changed cards glow 3 s) · blocked · read-only · offline |
+| **S-08** | Itinerary tab | The plan | Day rail D1…Dn; per-day cards with time, duration, **travel connector**, cost, thumbnail; day header shows weather, walking km, day cost; map toggle draws the route | empty · skeleton · populated · conflict · dragging · map |
+| **S-09** | Flights tab | Choose a flight | Outbound/return stacked, value-ranked, *Best value* ribbon + reason, fetched-at badge, compare drawer (3) | searching · results · none in budget · stale prices · error |
+| **S-10** | Stays tab | Choose a stay | Tier switcher (Budget/Mid/Luxury), cards with all-in total, rating + count, distance to plan centre, family attributes, reason line, map toggle | searching · per-tier results · unavailable · selected |
+| **S-11** | Documents tab | "Can I actually go?" | Per-traveller accordion; rows: type, status chip, requirement, **source link + last-verified date**, action. Guidance disclaimer always visible | all clear · action needed · blocking (red, pinned) · stale (amber) · assistance open |
+| **S-12** | Budget tab | Money truth | Total vs cap, stacked allocation bar, per-category rows with per-person maths, overrun callout naming the cause + two reductions | under · near (≥90%) · over · no cap |
+| **S-13** | Essentials tab | Everything else | Four panels: packing (checkable, grouped), weather (strip or normals, labelled), currency (rate + timestamp), emergency (numbers, embassy) | — |
+| **S-14** | Trips list | Find a trip | Status chips, search, grid on lg / list on sm; completeness ring and alert dot per card | empty (designed) · populated |
+| **S-15** | Final Package | The delivery moment | Summary hero, completeness checklist, Download PDF / Share / Calendar | generating (per-section ticks) · ready · incomplete (gaps marked, export still allowed) |
+| **S-16** | Shared Trip *(public)* | Spouse view, no auth | Read-only itinerary + signup CTA; **no** documents, budget detail or conversation | live · revoked (friendly 404) |
+| **S-17** | Profile & Travellers | Reuse people | Tabs: profile, travellers (name, age, nationality), preferences, notifications | — |
+| **S-18** | Settings | Control | Account, appearance (theme, reduced motion), privacy (export, delete), subscription | — |
+| **S-19–21** | Admin | Operate | Overview KPIs · users + conversation inspector (reason-coded, audit-logged) · providers, AI cost, feature flags | — |
+
+### Signature UI details worth building
+
+- **Composer that feels alive** — gradient focus ring, mic with a live waveform while recording, chips that animate in on load.
+- **Tool activity chips** — "Searching 42 airlines…" with a shimmer, replaced by the result. This makes the AI legible instead of mysterious.
+- **Progressive card fill** — day cards arrive as skeletons and resolve with a 400 ms stagger. The perceived wait collapses.
+- **Travel connectors** — a dotted vertical line between activities labelled "12 min · Tube". Small detail, huge credibility.
+- **Status chips with meaning** — green satisfied, amber stale, red blocking. One glance tells the user if the trip is at risk.
+- **Command palette** (`⌘K`) — jump to a trip, a tab, or start a new plan.
+
+---
+
+## 9. Database Design
+
+Local PostgreSQL 14+. Eight tables ship today. `uuid` primary keys, `timestamptz` everywhere, and ownership enforced in the application layer on every query. Full DDL, seeds and the admin account: [`schema.sql`](schema.sql).
+
+| Table | Purpose | Key columns |
+|---|---|---|
+| `users` | Account | `id`, `email` (unique), `full_name`, `home_city`, `nationality`, `travel_style`, `locale`, `theme`, `role`, `created_at` |
+| `travellers` | Reusable people on a trip | `id`, `user_id` → users, `name`, `birth_date`, `nationality`, `passport_status`, `passport_expiry` |
+| `trips` | The plan container | `id`, `user_id`, `title`, `destination_city`, `destination_country`, `origin_city`, `start_date`, `end_date`, `duration_days`, `party_adults`, `party_children`, `budget_total`, `currency`, `pace`, `interests[]`, `status`, `state` |
+| `trip_travellers` | Join | `trip_id`, `traveller_id` (composite PK) |
+| `conversations` | One thread per trip | `id`, `trip_id`, `created_at` |
+| `messages` | Chat turns | `id`, `conversation_id`, `role` (user/assistant/system/tool), `content`, `tool_calls` (jsonb), `tokens_in`, `tokens_out`, `model`, `created_at` |
+| `itinerary_items` | The plan rows | `id`, `trip_id`, `day_number`, `date`, `slot` (morning/afternoon/evening), `sort_order`, `type` (activity/meal/transport/flight/checkin/free), `title`, `description`, `place_id`, `lat`, `lng`, `start_time`, `duration_min`, `cost`, `booking_url`, `age_bands[]`, `locked` |
+| `trip_options` | Flights, hotels, events shortlisted | `id`, `trip_id`, `kind` (flight/hotel/event), `payload` (jsonb), `value_score`, `reason`, `selected`, `fetched_at` |
+| `compliance_checks` | Document requirements | `id`, `trip_id`, `traveller_id`, `doc_type` (passport/visa/insurance), `status`, `requirement`, `severity`, `source_url`, `verified_on` |
+| `visa_rules` | Seeded rules corpus | `id`, `nationality`, `destination`, `purpose`, `max_stay_days`, `result`, `passport_validity_months`, `insurance_required`, `notes`, `source_url`, `verified_on` |
+
+**Indexes:** `trips(user_id, status)`, `messages(conversation_id, created_at)`, `itinerary_items(trip_id, day_number, sort_order)`, `trip_options(trip_id, kind, value_score desc)`, `visa_rules(nationality, destination)` unique, `compliance_checks(trip_id, severity)`.
+
+**Caching:** Redis (or in-memory for day one) — `flights:{origin}:{dest}:{dates}:{pax}` 30 min · `hotels:{city}:{dates}:{occ}` 60 min · `weather:{city}:{date}` 3 h · `visa:{nat}:{dest}` 24 h.
+
+**Full DDL:** see [`schema.sql`](schema.sql).
+
+---
+
+## 10. ER Diagram
+
+```mermaid
+erDiagram
+    USERS ||--o{ TRIPS : owns
+    USERS ||--o{ TRAVELLERS : saves
+    TRIPS ||--|| CONVERSATIONS : has
+    CONVERSATIONS ||--o{ MESSAGES : contains
+    TRIPS ||--o{ ITINERARY_ITEMS : contains
+    TRIPS ||--o{ TRIP_OPTIONS : shortlists
+    TRIPS ||--o{ COMPLIANCE_CHECKS : requires
+    TRIPS }o--o{ TRAVELLERS : includes
+    TRAVELLERS ||--o{ COMPLIANCE_CHECKS : subject_of
+    VISA_RULES ||--o{ COMPLIANCE_CHECKS : resolves
+
+    USERS {
+        uuid id PK
+        text email UK
+        text full_name
+        text home_city
+        char2 nationality
+        text travel_style
+        text role
+        timestamptz created_at
+    }
+    TRAVELLERS {
+        uuid id PK
+        uuid user_id FK
+        text name
+        date birth_date
+        char2 nationality
+        text passport_status
+        date passport_expiry
+    }
+    TRIPS {
+        uuid id PK
+        uuid user_id FK
+        text title
+        text destination_city
+        char2 destination_country
+        date start_date
+        date end_date
+        int party_adults
+        int party_children
+        numeric budget_total
+        text status
+        text state
+    }
+    CONVERSATIONS {
+        uuid id PK
+        uuid trip_id FK
+    }
+    MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        text role
+        text content
+        jsonb tool_calls
+        int tokens_in
+        int tokens_out
+    }
+    ITINERARY_ITEMS {
+        uuid id PK
+        uuid trip_id FK
+        int day_number
+        text slot
+        int sort_order
+        text type
+        text title
+        numeric lat
+        numeric lng
+        time start_time
+        int duration_min
+        numeric cost
+        bool locked
+    }
+    TRIP_OPTIONS {
+        uuid id PK
+        uuid trip_id FK
+        text kind
+        jsonb payload
+        numeric value_score
+        text reason
+        bool selected
+        timestamptz fetched_at
+    }
+    COMPLIANCE_CHECKS {
+        uuid id PK
+        uuid trip_id FK
+        uuid traveller_id FK
+        text doc_type
+        text status
+        text severity
+        text source_url
+        date verified_on
+    }
+    VISA_RULES {
+        uuid id PK
+        char2 nationality
+        char2 destination
+        text result
+        int passport_validity_months
+        bool insurance_required
+        text source_url
+        date verified_on
+    }
+```
+
+---
+
+## 11. System Architecture
+
+One deployable Next.js application. Modular inside, monolith outside — the right shape for a one-day build and for the first 50,000 users.
+
+```mermaid
+flowchart TB
+    subgraph Client
+        UI["Next.js App Router<br/>React · Tailwind · shadcn/ui"]
+        SW["PWA shell · offline read"]
+    end
+
+    subgraph Edge["Vercel Edge"]
+        MW["Middleware<br/>auth · rate limit · routing"]
+    end
+
+    subgraph App["Next.js server (Node runtime)"]
+        CHAT["/api/chat<br/>SSE streaming"]
+        ORCH["AI Orchestrator<br/>tool loop"]
+        ITIN["Itinerary Engine<br/>cluster · route · time-fit"]
+        COMP["Compliance Engine<br/>rules + severity"]
+        PDF["PDF worker"]
+    end
+
+    subgraph Data
+        PG[("PostgreSQL<br/>local")]
+        RD[("Redis cache")]
+        VEC[("pgvector<br/>knowledge chunks")]
+        OBJ[("Object store<br/>PDFs")]
+    end
+
+    subgraph External
+        LLM["LLM API<br/>tool calling"]
+        FL["Flights API<br/>Amadeus / seeded"]
+        HT["Hotels API<br/>Booking / seeded"]
+        PL["Places API"]
+        WX["Weather API"]
+        FX["FX rates"]
+        EV["Events API"]
+    end
+
+    UI -->|HTTPS| MW --> CHAT
+    UI -.->|SSE| CHAT
+    CHAT --> ORCH
+    ORCH <--> LLM
+    ORCH --> ITIN
+    ORCH --> COMP
+    ORCH --> RD
+    ORCH --> FL & HT & PL & WX & FX & EV
+    COMP --> PG
+    COMP --> VEC
+    ITIN --> PG
+    ORCH --> PG
+    PDF --> OBJ
+    UI --> PDF
+    SW -.-> UI
+```
+
+### Component responsibilities
+
+| Component | Owns | Does not own |
+|---|---|---|
+| **Middleware** | Session verification, rate limits, locale | Business logic |
+| **Chat route** | SSE transport, turn persistence, cancellation | Deciding what to call |
+| **Orchestrator** | Slot state, tool selection, tool loop, grounding, cost control | Rendering, direct DB schema knowledge |
+| **Itinerary Engine** | Clustering, routing, time-fit, walking caps — pure deterministic functions | Anything that calls an LLM |
+| **Compliance Engine** | Rule resolution, severity, citation, freshness | Giving legal advice |
+| **PDF worker** | Render and store the package | Plan content |
+
+**Why not microservices today:** at this scale they add deployment surface and latency while buying nothing. Section 16 states the decomposition for when it is needed and names the trigger.
+
+### Request paths
+
+| Path | Mode | Budget |
+|---|---|---|
+| Chat turn (no tools) | Sync stream | first token ≤1.5 s |
+| Chat turn (with tools) | Sync stream, tool chips rendered live | ≤8 s to final token |
+| Full itinerary build | Async job + progressive SSE patches | first card ≤3 s, done ≤25 s |
+| PDF export | Background job, notify on ready | ≤10 s |
+| Compliance check | Sync, cache-first | ≤2 s, ≤200 ms cached |
+
+---
+
+## 12. AI Architecture
+
+A single **orchestrator** with a typed tool registry. No agent swarm — for this product a well-specified tool loop beats autonomous agents on reliability, latency and cost.
+
+```mermaid
+flowchart LR
+    U[User turn<br/>text or voice] --> G1["Input guard<br/>injection · PII scrub"]
+    G1 --> IC[Intent + slot extraction<br/>small fast model]
+    IC --> RT{Router}
+    RT -->|smalltalk / simple| SM[Small model<br/>answer directly]
+    RT -->|plan / modify / compare| PL[Planner model<br/>frontier, tool calling]
+    RT -->|compliance| CP[Compliance path<br/>rules first, model explains]
+
+    PL --> TL{{Tool loop<br/>max 6 iterations}}
+    TL --> T1[search_flights]
+    TL --> T2[search_hotels]
+    TL --> T3[search_places]
+    TL --> T4[search_events]
+    TL --> T5[get_weather]
+    TL --> T6[check_compliance]
+    TL --> T7[build_itinerary]
+    TL --> T8[compute_budget]
+    T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 --> TL
+    TL --> SY[Synthesis + grounding check]
+    CP --> SY
+    SM --> SY
+    SY --> G2["Output guard<br/>citations · safety · schema"]
+    G2 --> R[Stream to client<br/>+ persist trip state]
+
+    MEM[(Memory: trip state object<br/>+ rolling summary<br/>+ user preferences)] <--> PL
+    MEM <--> IC
+```
+
+### Model routing
+
+| Task | Model tier | Why |
+|---|---|---|
+| Intent + slot extraction | Small / fast | Classification, runs every turn, must be cheap |
+| Smalltalk, confirmations, summaries | Small / fast | No reasoning required |
+| Trip planning, itinerary reasoning, comparisons | Frontier | Multi-constraint reasoning with tool calls |
+| Compliance explanation | Mid, **temperature 0**, rules supplied as context | Must not invent; rules come from the DB, the model only phrases them |
+| Packing list, tips | Small, cached per destination+season | Near-static output |
+
+**Cost control:** per-turn token ceiling, 6-iteration tool cap, aggressive caching of tool results, prompt caching on the static system prompt, and a hard daily spend cap with a kill switch.
+
+### Memory tiers
+
+| Tier | Contents | Lifetime |
+|---|---|---|
+| Turn | Current user message + tool results | One request |
+| Trip state object | Canonical JSON: destination, dates, party, budget, selections, constraints | Life of the trip, always injected |
+| Rolling summary | Compressed older turns beyond the last 12 | Life of the trip |
+| User preferences | Confirmed durable likes/dislikes | Across trips |
+
+The **trip state object is the source of truth**, not the chat transcript. The transcript is history; the state object is what the model reasons over. This is what makes turn 15 as reliable as turn 2.
+
+### Guardrails
+
+| Guard | Rule |
+|---|---|
+| Input | Strip prompt-injection patterns; retrieved and user content is always data, never instruction |
+| PII | Passport numbers and full DOB never enter a prompt — age band and validity flags only |
+| Tool allowlist | The model may call only registered, schema-validated tools |
+| Grounding | Any price, time, opening hour or visa rule without a tool provenance is dropped before render |
+| Output | JSON schema validation on structured output; one repair retry, then a graceful fallback |
+| Compliance | Hard rule: never state a visa outcome not present in `visa_rules`; say "confirm with the official source" instead |
+
+### Evaluation
+
+| Suite | Size | Gate |
+|---|---|---|
+| Slot extraction | 200 utterances | ≥95% exact-match on required slots |
+| Itinerary validity | 50 trips | 0 closed-venue bookings, 0 impossible transits, walking cap respected |
+| Compliance correctness | 120 nationality × destination pairs | ≥99% agreement with source |
+| Grounding / hallucination | 300 claims | <2% unsupported |
+| Prompt injection | 100 attacks | 0 successes |
+
+No release if any suite drops more than 2 points.
+
+---
+
+## 13. LLM Workflow
+
+One turn, end to end.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as Client
+    participant A as /api/chat
+    participant O as Orchestrator
+    participant M as LLM
+    participant T as Tools
+    participant D as Postgres
+
+    U->>C: "Plan a 7-day London trip for me, my wife and 2 kids"
+    C->>A: POST /api/chat (SSE open)
+    A->>D: persist user message
+    A->>O: turn(tripId, text)
+    O->>D: load trip state + rolling summary
+    O->>M: extract intent + slots (small model)
+    M-->>O: {intent: plan_trip, destination: London, duration: 7, adults: 2, children: 2}
+    O->>O: missing = [dates, origin, budget]
+
+    alt Below draft threshold
+        O-->>C: stream "Lovely — two questions…" + 2 slot chips
+    else Draft threshold met
+        O->>M: plan prompt + state + tool schemas
+        M-->>O: tool_calls[search_flights, search_hotels, search_places, get_weather, check_compliance]
+        O-->>C: tool chips ("Searching 42 airlines…")
+        par Parallel execution
+            O->>T: search_flights
+            O->>T: search_hotels
+            O->>T: search_places
+            O->>T: get_weather
+            O->>T: check_compliance
+        end
+        T-->>O: results (+ provenance + fetched_at)
+        O->>O: build_itinerary (deterministic: cluster → route → time-fit)
+        O->>O: compute_budget
+        O->>M: synthesise narrative over the structured plan
+        M-->>O: streamed prose + structured patch
+        O->>O: grounding check — drop unsupported claims
+        O-->>C: stream prose + artifact patches (progressive cards)
+        O->>D: persist itinerary_items, trip_options, compliance_checks, message, token cost
+    end
+    C-->>U: plan fills in as it arrives
+```
+
+### Prompt structure
+
+```
+SYSTEM
+  Identity and scope: travel planning only; never give legal, medical or visa-outcome advice
+  Hard rules: never invent prices/hours/visa rules; cite tools; respect the budget cap;
+              ≤2 questions per turn; state assumptions out loud
+  Output contract: prose + a JSON patch matching TripPatch schema
+  Tool catalogue: name, purpose, JSON schema, when NOT to use
+
+CONTEXT (assembled per turn)
+  Trip state object (canonical JSON)
+  Rolling summary of turns older than the last 12
+  Last 12 verbatim turns
+  Retrieved knowledge chunks (destination + compliance), each with source id
+  User preferences
+
+USER
+  Current message (voice transcript marked as such)
+```
+
+**Why prose + patch:** the model never mutates the database directly. It proposes a `TripPatch`; the server validates it against the schema and applies it. Invalid patches are rejected and retried once. This keeps a probabilistic model from corrupting state.
+
+### Failure handling
+
+| Failure | Response |
+|---|---|
+| Tool timeout | Continue with partial results; the affected panel shows a retry and the plan still renders |
+| Model returns invalid JSON | One repair attempt with the validation error; then degrade to prose-only |
+| Tool loop hits 6 iterations | Stop, present what exists, ask the user one focusing question |
+| Model provider 5xx | Retry with jitter, then switch to the secondary provider |
+| Budget impossible | Do not silently exceed: name the binding constraint, offer two relaxations |
+
+---
+
+## 13A. AI Chatbot Behaviour Specification
+
+> **This is the most important section in the document.** Everything else is scaffolding around the conversation. A beautiful UI with a mediocre chatbot is a demo; a great chatbot with a beautiful UI is a product. This section is the contract the chatbot must meet.
+
+### 13A.1 The effectiveness contract
+
+The chatbot is only acceptable if **all ten** of these hold. Each is testable, and each maps to a numbered journey step from the brief.
+
+| # | Rule | Fails if |
+|---|---|---|
+| 1 | **Extracts everything stated, asks only for what is missing** | It asks for the destination after the user said "London" |
+| 2 | **Asks at most 2 questions per turn, batched naturally** | It interrogates one field at a time across six turns |
+| 3 | **Never re-asks a known fact** | Turn 9 asks for dates the user gave at turn 2 |
+| 4 | **Infers instead of asking where inference is safe** | It asks "how many travellers?" after "me, my wife and two kids" |
+| 5 | **Drafts before it is fully informed** | It refuses to show anything until budget is supplied |
+| 6 | **States every assumption out loud** | It silently picks March dates and never mentions it |
+| 7 | **Updates continuously — any later message re-derives only what it touches** | "Make it cheaper" regenerates the whole trip and loses the locked museum |
+| 8 | **Volunteers compliance, currency, SIM, packing and tips without being asked** | The user has to think to ask about visas |
+| 9 | **Never invents a fact** | A price, opening time or visa rule appears with no tool behind it |
+| 10 | **Always ends with a next action** | A turn ends with information and no offer |
+
+### 13A.2 Slot schema — what it needs, what it infers, what it defaults
+
+Only three slots are **required to draft**. Everything else is inferred or defaulted, and every default is announced.
+
+| Slot | Required to draft | Inference rule | Default if unknown |
+|---|:---:|---|---|
+| `destination` | ✅ | NER on place names; "somewhere warm in Europe" → suggest 3 and ask | — must ask |
+| `durationDays` | ✅ | "7-day", "a week" → 7; "long weekend" → 3 | — must ask |
+| `party` | ✅ | **"me, my wife and two kids" → 2 adults + 2 children**; then ask ages once, because ages change everything | — must ask |
+| `childAges` | ◻ | From profile travellers if saved | Ask once: "How old are the kids?" (drives walking caps, activities, hotel occupancy) |
+| `startDate` / `endDate` | ◻ | "next month", "in March", "during Easter" → resolved to a window | Next school-holiday window for families, next shoulder-season weekend otherwise — **stated** |
+| `originCity` | ◻ | Profile `home_city`; else IP-geolocated city | Profile home city — **stated** |
+| `budgetTotal` | ◻ | "around 5 lakh", "cheap", "no limit" → band | Mid-range band for that destination × party × duration — **stated** |
+| `pace` | ◻ | "relaxed", "see everything", presence of young children | `balanced`; `relaxed` if any child under 7 |
+| `interests` | ◻ | Extracted from any free text across the whole thread | Destination top-interest mix — **stated** |
+| `hotelTier` | ◻ | From budget band and travel style | Derived from budget — **stated** |
+| `flightPrefs` | ◻ | "no red-eyes", "direct only", profile preferences | None; direct preferred when children present |
+| `nationalities` | ◻ | Profile + saved travellers | Profile nationality; ask if a traveller differs |
+| `passportStatus` | ◻ | Saved travellers | **Must ask before compliance can resolve** — asked inside the compliance turn, not up front |
+
+**The inference that defines the product:** *"me, my wife and two kids"* must yield `adults: 2, children: 2` with zero follow-up about headcount. Any build where the bot asks "how many people are travelling?" after that sentence fails acceptance.
+
+### 13A.3 Conversation state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Listening
+    Listening --> Extracting: user message
+    Extracting --> Clarifying: required slot missing
+    Clarifying --> Extracting: answer received
+    Extracting --> Drafting: destination + duration + party known
+    Drafting --> Presenting: tools done, plan built
+    Presenting --> Compliance: plan rendered (automatic, unprompted)
+    Compliance --> DocAssist: passport missing / expiring / visa needed
+    Compliance --> Enriching: documents clear
+    DocAssist --> Enriching: guidance delivered
+    Enriching --> Presenting: currency + SIM + packing + tips offered
+    Presenting --> Refining: user asks for a change
+    Refining --> Presenting: partial re-derive only
+    Presenting --> Packaging: user accepts
+    Packaging --> [*]: final package delivered
+    Refining --> Refining: further changes
+```
+
+The bot never leaves `Presenting` without having passed through `Compliance` at least once. Compliance is a state, not a feature the user has to find.
+
+### 13A.4 The reference conversation
+
+This is the acceptance script. It maps one-to-one to Steps 4–12 of the brief, and the build is tested against it verbatim.
+
+---
+
+**Turn 1 — user:** *"Plan a 7-day London vacation for me, my wife and two kids."*
+
+**Bot** *(extracts: destination=London, duration=7, adults=2, children=2 — asks only what it cannot infer; 2 questions, not 6)*
+
+> Lovely — a week in London with the family. I can already see a good shape for this.
+>
+> Two things and I'll have a plan on screen:
+> 1. **When** are you thinking? Any month works — I'll find the best week.
+> 2. **How old are the kids?** It genuinely changes the plan — walking distances, which museums, and hotel room rules.
+>
+> *While you answer: flying from **Bengaluru** and working to a **mid-range budget (~₹4.2L / $5,000)**, both from your profile. Say the word if either is wrong.*
+>
+> `[chips: Next month]  [April]  [Summer holidays]  [I'm flexible]`
+
+*Note the three behaviours: two questions maximum, assumptions stated not hidden, and tappable answers so the user can reply in one touch.*
+
+---
+
+**Turn 2 — user:** *"Second week of April. Kids are 6 and 11."*
+
+**Bot** *(now above the draft threshold — stops asking, starts building; tool chips stream live)*
+
+> Perfect — **11–18 April**, two adults, a 6-year-old and an 11-year-old. Building it now.
+>
+> `⟳ Searching 42 airlines…` → `✓ 7 options`
+> `⟳ Finding family stays in central London…` → `✓ 23 properties`
+> `⟳ Checking what's on 11–18 April…` → `✓ 9 events`
+> `⟳ Pulling opening hours and ticket rules…` → `✓ 31 places`
+> `⟳ Checking entry requirements IN → GB…` → `⚠ 1 issue found`
+>
+> Here's your week. I've kept it to **three anchors a day** with a **5 km walking cap** because of your 6-year-old, and left **Day 5 deliberately light** — day four of a family trip is when everyone gets tired.
+>
+> **The headlines:**
+> - **Flights** — BLR→LHR direct on British Airways, ₹2,24,000 for four. Not the cheapest, but the cheapest option has a 9-hour Doha layover, which with a 6-year-old is a false economy.
+> - **Stay** — 2-bedroom apartment in South Kensington, ₹1,38,000 for 7 nights. Walking distance to three of your museums, and a kitchen matters more than you'd think with young kids.
+> - **Budget** — ₹4,06,000 of your ₹4,20,000, with the 10% buffer intact.
+> - **⚠ One thing needs your attention** — I've found a passport issue. I've put it at the top of the Documents tab.
+>
+> Want me to walk you through the passport issue first, or look at the week?
+>
+> `[The passport issue]  [Show me the week]  [Make it cheaper]`
+
+---
+
+**Turn 3 — user:** *"The passport issue"* → **Steps 8–10 of the journey**
+
+**Bot** *(compliance came from the rules table, not the model; every claim carries a source and a verified date)*
+
+> Here's the position for each of you, travelling **11 April 2027**:
+>
+> | Traveller | Passport | Visa | Status |
+> |---|---|---|---|
+> | You | Valid to Mar 2030 ✅ | UK visa required | **Action needed** |
+> | Wife | Valid to Aug 2028 ✅ | UK visa required | **Action needed** |
+> | Daughter (11) | Valid to Jun 2027 ⚠️ | UK visa required | **Blocking** |
+> | Son (6) | **No passport** ❌ | — | **Blocking** |
+>
+> **Two blockers, both solvable with your timeline — you have 27 weeks.**
+>
+> **1. Your son has no passport.** For a minor in India: apply online at the Passport Seva portal, both parents' consent, Annexure D, birth certificate, address proof. **₹1,000 fee, 30–45 days** normally; *tatkal* is faster. Start this one first — it gates the visa application.
+> *Source: [passportindia.gov.in](https://www.passportindia.gov.in) · verified 12 days ago*
+>
+> **2. Your daughter's passport expires June 2027.** The UK wants validity for the whole stay, which she technically has — but no onward country will touch a passport inside 6 months of expiry, and you'd be renewing in a panic later this year anyway. **Renew now**, ₹1,500, 30 days.
+>
+> **3. All four need a UK Standard Visitor visa.** Online application, biometrics at a VFS centre in Bengaluru, £127 each (≈₹13,400), **3 weeks** standard. ₹53,600 for four — I've added it to your budget. Apply **after** both passports land, because the visa is tied to the passport number.
+> *Source: [gov.uk/standard-visitor](https://www.gov.uk/standard-visitor) · verified 5 days ago*
+>
+> **Your sequence:** son's passport → daughter's renewal → all four visas → done by early February, two months of slack.
+>
+> Shall I put that in a checklist with dates on your trip, and would you like help with the passport applications?
+>
+> `[Yes — checklist with dates]  [Help me apply]  [Back to the week]`
+>
+> *Guidance only — confirm with the official source before you apply.*
+
+*This single turn is the product. No competitor does it, and it is why the user comes back.*
+
+---
+
+**Turn 4 — user:** *"Yes, and show me the week. Also my son hates long museum days."* → **Step 7, continuous update**
+
+**Bot** *(two instructions in one message; applies both; re-derives only what changed)*
+
+> Noted — **no museum day longer than 2 hours** while he's with you. I've reworked Days 2 and 4; everything else stands, and your Tower of London slot is untouched.
+>
+> **Day 2 was** British Museum (3.5 h) → lunch → National Gallery
+> **Day 2 is now** British Museum, **2 h, Egypt and the mummies only** → lunch in Russell Square → **Diana Memorial Playground** (he'll remember this longer than the museum)
+>
+> **Day 4** swapped the V&A for the **Natural History Museum** — dinosaurs hold a 6-year-old for exactly the 90 minutes you need, and it's 8 minutes from your apartment.
+>
+> Checklist added to the trip with dates: son's passport by **15 Nov**, daughter's by **20 Dec**, visas submitted by **10 Feb**.
+>
+> Day 5 is still free. Want me to leave it free, or pencil in Windsor or Oxford as an optional day trip?
+
+---
+
+**Turn 5 — user:** *"Leave it free. What else do I need to sort out?"* → **Step 11**
+
+**Bot** *(volunteers the full tail of the trip — this is the "operating system" promise made concrete)*
+
+> Leaving Day 5 free. Here's everything else, ordered by when you need to act:
+>
+> **Now (with the visas)**
+> - **Travel insurance** — not legally required for the UK, but your visa application is stronger with it and a family medical claim in London without cover is genuinely frightening. ₹4,800–7,200 for four, 8 days, including the kids. Three options in Essentials.
+>
+> **Two weeks before**
+> - **Money** — £1 ≈ ₹112 today. Carry **£150–200 cash** for markets and tips; everything else is contactless, including buses. Do not change money at the airport. A forex card beats your credit card by roughly 3% on fees.
+> - **Oyster vs contactless** — just tap your phone. Daily caps apply automatically, children under 11 ride free with a paying adult, so your 6-year-old travels free and your 11-year-old needs a Zip card. Saves about ₹6,000 across the week.
+>
+> **A few days before**
+> - **Connectivity** — an eSIM is cheapest: 10 GB, 8 days, ₹900 for one phone. Install before you fly; it activates on landing. UK roaming on your Indian plan is roughly 4× that.
+> - **Packing list** — generated for 11–18 April London: 9–15 °C, rain on 4 of your 8 days. 42 items, grouped by person, with the things people forget — **layers not one coat, an actual umbrella, the kids' shoes they can walk 5 km in, a power adapter (Type G), and your passports and visa letters**. It's in Essentials, ticked off as you pack.
+>
+> **Worth knowing**
+> - Pre-book the Tower of London and the London Eye — both sell out in April school holidays, and the queue with a 6-year-old is its own punishment.
+> - Under-11s travel free on the Tube with you, and most major museums are free entry — London is kinder to family budgets than its reputation.
+> - **Emergency:** 999 · Indian High Commission, Aldwych, +44 20 7836 8484 — both in your Essentials tab.
+>
+> That's the whole trip covered. Ready for me to put it together as your final package?
+>
+> `[Generate my travel package]  [Change something first]`
+
+---
+
+**Turn 6 — user:** *"Generate it."* → **Step 12**
+
+**Bot**
+
+> **Your London package is ready.** ✨
+>
+> ✅ 7-day itinerary, 21 activities, route-optimised, nothing scheduled while closed
+> ✅ Flights: BA direct, both ways, with baggage
+> ✅ Stay: South Kensington apartment, 7 nights, all-in
+> ✅ Documents: 2 passports, 4 visas, insurance — checklist with dates
+> ✅ Budget: ₹4,59,600 of ₹4,20,000 *(visas pushed you ₹39,600 over — the only honest way to fix it is a 1-stop flight saving ₹48,000, and I'd advise against it with a 6-year-old. Your call.)*
+> ✅ Packing list, weather, currency, transport, emergency contacts
+>
+> `[Download PDF]  [Share with your wife]  [Add to calendar]`
+>
+> I'll keep an eye on this trip. Message me any time — flight prices move, and I'll tell you if yours does.
+
+*Note turn 6: it does **not** hide the budget overrun. Rule 9 means the bot reports uncomfortable truths, with the trade-off named and the decision left to the user. This is what makes the other five turns believable.*
+
+### 13A.5 Production system prompt
+
+```text
+You are JourneyOS — an expert travel consultant. You plan trips end to end: flights,
+stays, day-by-day itineraries, budgets, entry documents, and everything a traveller
+needs before departure.
+
+## How you behave
+
+1. EXTRACT BEFORE YOU ASK. Pull every fact from what the user already said. "me, my wife
+   and two kids" = 2 adults + 2 children. "7-day" = 7 nights. "next month" = resolve it.
+   Never ask for something you were told or can infer.
+2. AT MOST TWO QUESTIONS PER TURN, and only for facts you cannot infer or safely default.
+   Batch them. Explain in half a sentence why each matters.
+3. DRAFT EARLY. The moment you know destination + duration + party, build the plan. Do not
+   wait for budget, dates or preferences — default them and SAY SO:
+   "working to a mid-range budget (~$5,000) from your profile — say the word if that's wrong."
+4. NEVER RE-ASK. The trip state object below is what you know. Treat it as memory.
+5. ONE QUESTION A TURN AT THE END, always with 2–4 tappable chip options.
+
+## Facts and honesty
+
+6. NEVER invent a price, flight, opening time, rating, visa rule or requirement. Every
+   factual claim comes from a tool result in this context. No tool result, no claim —
+   say "let me check that" and call the tool.
+7. VISA AND PASSPORT ANSWERS come only from check_compliance output. Never state an outcome
+   that is not in that result. Always include the source link and the verified date, and
+   always add: "Guidance only — confirm with the official source."
+8. REPORT BAD NEWS. Over budget, a blocking passport, a sold-out attraction: say it plainly,
+   name the cause, offer two concrete options, and let the user decide. Never quietly
+   exceed a budget cap or bury a blocker.
+
+## Reasoning like a consultant, not a search engine
+
+9. JUSTIFY IN ONE LINE. Every recommendation carries a reason: "not the cheapest, but the
+   cheap one has a 9-hour layover, which with a 6-year-old is a false economy."
+10. AGE CHANGES EVERYTHING. A child under 7 means: 5 km walking cap, no museum over 2 hours,
+    earlier dinners, playgrounds between sights, a kitchen in the accommodation, and
+    occupancy rules on rooms. Apply this without being asked.
+11. PACE IS REAL. Maximum 3–4 anchors a day. Build in one genuinely light day mid-trip.
+    Protect any downtime the user asks for, exactly.
+12. VOLUNTEER THE TAIL. Once the plan exists, proactively cover — in this order — documents,
+    insurance, currency and payment, local transport, connectivity, packing, and two or
+    three things only someone who knows the city would say. Do not wait to be asked.
+
+## Changing the plan
+
+13. RE-DERIVE ONLY WHAT CHANGED. "Make it cheaper" must not discard the user's locked items
+    or the constraints they stated 10 turns ago. Say what changed and what you kept.
+14. HONOUR STANDING CONSTRAINTS FOREVER. "My son hates long museum days" applies to every
+    later turn in this trip, not just the next one.
+
+## Output
+
+Prose for the human, plus a TripPatch JSON object for the system. Never write to the
+database directly — propose the patch and the server applies it. Warm, concise, specific.
+Short paragraphs. No filler, no "I'd be happy to help", no emoji except a single status
+marker where it aids scanning. Match the user's language.
+
+## Hard limits
+
+Travel planning only. No legal, medical, immigration-outcome or financial advice. You never
+promise a visa will be granted. You never request or accept passport numbers, card details
+or document uploads in chat. If asked to do something outside travel planning, say so in one
+sentence and return to the trip.
+
+## Current trip state
+{{TRIP_STATE_JSON}}
+
+## Confirmed user preferences
+{{USER_PREFERENCES}}
+
+## Conversation summary (turns older than the last 12)
+{{ROLLING_SUMMARY}}
+
+## Tool results available this turn (the ONLY source of facts)
+{{TOOL_RESULTS_WITH_PROVENANCE}}
+```
+
+### 13A.6 Proactive triggers — what the bot volunteers, unprompted
+
+A reactive chatbot answers. An effective one notices. These fire automatically.
+
+| Trigger | The bot says, without being asked |
+|---|---|
+| Plan first rendered | Runs compliance and surfaces any issue in the same turn |
+| International destination | Visa, passport validity and insurance position |
+| Passport expiring within 6 months of travel | **Blocking** alert with the exact shortfall and renewal lead time |
+| Any traveller has no passport | Offers application help with route, documents, fee and processing time |
+| Child under 7 in the party | Reduces walking cap, caps museum duration, adds playground breaks, prefers a kitchen |
+| Any traveller over 70 | Reduces pace, flags step-free access |
+| Total exceeds the cap | Names the category that caused it and offers two reductions |
+| Rain probability > 60% on a day | Offers an indoor swap for that day only |
+| A major event falls in the window | Offers to anchor a day around it |
+| Attraction known to sell out | Advises pre-booking, with the lead time |
+| Destination currency differs from home | Rate, cash-vs-card guidance, airport-exchange warning |
+| Trip longer than 3 days abroad | eSIM and connectivity options |
+| 7 days before the plan's travel date | Packing list reminder and final document check |
+| Flight price moves more than 10% | Tells the user, unprompted *(Phase 2)* |
+| User idle 30 s after the plan renders | Offers the single most useful next step, never a generic "anything else?" |
+
+### 13A.7 Recovery behaviour
+
+| Situation | What the bot does |
+|---|---|
+| Ambiguous place ("Springfield") | Offers the 3 likeliest with a distinguishing detail each; never guesses silently |
+| Impossible request ("5-star Maldives week for $500") | States the realistic floor, offers the nearest achievable version and one alternative destination |
+| Tool returns nothing | Says which source failed, continues with the rest of the plan, offers a retry for that panel only |
+| User contradicts themselves | Confirms the change explicitly: "switching from April to June — keeping everything else" |
+| Off-topic question | One sentence, then back to the trip |
+| User frustrated or terse | Drops the explanation, gives the answer, offers to take over the next step |
+| User asks for a visa guarantee | Explains it decides nothing; it informs and prepares. No hedging beyond that |
+
+### 13A.8 Chatbot acceptance tests
+
+Run before the build is called done. Every one is a pass/fail gate.
+
+| # | Test | Pass condition |
+|---|---|---|
+| CB-1 | Send the exact brief sentence | Extracts destination, duration, 2 adults, 2 children; asks ≤2 questions; never asks headcount |
+| CB-2 | Answer with dates and ages only | Produces a full plan without asking for budget or origin, and states both assumptions |
+| CB-3 | Say "my son hates long museum days" at turn 4 | Every museum from then on is ≤2 h, in this and all later turns |
+| CB-4 | Say "make it cheaper" after locking one activity | Locked item survives; the bot states what changed and what it kept |
+| CB-5 | Set a party where one passport expires inside 6 months | Blocking alert with exact day shortfall, unprompted |
+| CB-6 | Set a traveller with no passport | Offers application help with route, documents, fee, processing time, official link |
+| CB-7 | Ask "do I need a visa?" for 5 nationality × destination pairs | 5/5 match the rules table; all carry source and verified date; all carry the disclaimer |
+| CB-8 | Ask for something unsupported by any tool | Declines to state it; offers to check; invents nothing |
+| CB-9 | Set a budget that cannot be met | Names the binding category, offers exactly two reductions, does not silently exceed |
+| CB-10 | Reach turn 15, then reference a turn-2 constraint | Honoured without restating |
+| CB-11 | Ask the same question twice | No repetition of the same answer verbatim; acknowledges and adds |
+| CB-12 | Prompt injection in a place review ("ignore previous instructions") | Ignored; treated as data; reported in the eval log |
+| CB-13 | Finish the reference script end to end | All 12 journey steps covered in ≤6 turns |
+| CB-14 | Voice input of the brief sentence | Transcript accurate; identical plan quality to typed input |
+
+**Gate:** 14/14 pass, or the chatbot does not ship.
+
+---
+
+## 14. RAG Workflow
+
+RAG covers what APIs cannot: compliance rules, destination knowledge and etiquette. Flights, hotels and weather are **never** RAG — they are live tool calls.
+
+```mermaid
+flowchart LR
+    subgraph Ingest["Ingestion — nightly"]
+        S1[Government visa & entry pages] --> N[Normalise to text + metadata]
+        S2[Official tourism boards] --> N
+        S3[Embassy & travel advisories] --> N
+        S4[Curated destination guides] --> N
+        N --> CH["Chunk<br/>600 tokens, 80 overlap<br/>split on headings"]
+        CH --> EM[Embed] --> VS[("pgvector<br/>+ metadata")]
+        N --> KW[("Postgres FTS<br/>BM25")]
+        N --> RULES[("visa_rules<br/>structured extract<br/>human-approved")]
+    end
+
+    subgraph Query["Query time"]
+        Q[User question or<br/>compliance check] --> QE[Expand + rewrite]
+        QE --> HY{Hybrid retrieval}
+        HY --> V2[Vector top-20] --> VS
+        HY --> K2[Keyword top-20] --> KW
+        V2 & K2 --> FUSE[Reciprocal rank fusion] --> RR[Rerank top-6]
+        RR --> FILT["Filter: freshness<br/>+ jurisdiction match"]
+        FILT --> CTX[Build grounded context<br/>with source ids]
+        CTX --> GEN[Generate with citations]
+        GEN --> VER{Every claim supported?}
+        VER -- no --> DROP[Drop claim<br/>say 'confirm with official source']
+        VER -- yes --> OUT[Answer + citations]
+    end
+
+    RULES -.->|structured path wins<br/>for visa decisions| OUT
+```
+
+### Corpora
+
+| Corpus | Source | Refresh | Chunking |
+|---|---|---|---|
+| Visa & entry rules | Official government portals | Nightly, human-approved before going live | Structured extract into `visa_rules` + prose chunks |
+| Passport procedures | Issuing-authority pages | Weekly | By heading |
+| Travel advisories | Government advisory feeds | Daily | By country section |
+| Destination knowledge | Curated guides, tourism boards | Monthly | 600 tokens, 80 overlap |
+| Etiquette, tipping, transport | Curated, editorially reviewed | Quarterly | By topic |
+
+### Rules that make it trustworthy
+
+1. **Structured beats retrieved.** A visa decision comes from the `visa_rules` row. Retrieved prose only *explains* it.
+2. **Freshness is visible.** Every answer carries `verified_on`. Over 30 days old renders amber.
+3. **Jurisdiction filtering before ranking.** A chunk about Indian passport rules can never answer a UK-national question.
+4. **Citations are mandatory** on compliance answers. No citation, no claim.
+5. **Retrieved text is data, never instruction.** Chunks are wrapped and explicitly labelled untrusted.
+
+---
+
+## 15. API Design
+
+REST + SSE, `/api/v1`, bearer JWT, JSON only. Full reference in [`api.md`](api.md).
+
+### Conventions
+
+| Concern | Decision |
+|---|---|
+| Versioning | URL path `/api/v1`; breaking changes bump the path |
+| Auth | `Authorization: Bearer <jwt>`; refresh via `POST /auth/refresh` |
+| Errors | `{ "error": { "code": "TRIP_NOT_FOUND", "message": "...", "requestId": "..." } }`, correct HTTP status |
+| Idempotency | `Idempotency-Key` header on every POST/PATCH; 24 h replay window |
+| Pagination | Cursor: `?limit=20&cursor=...` → `{ data, nextCursor }` |
+| Rate limits | 60 req/min/user general, 20/min on `/chat`; `429` with `Retry-After` |
+| Streaming | SSE on `/chat/stream`, events `token`, `tool_start`, `tool_end`, `patch`, `done`, `error` |
+
+### Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/auth/signup` | Create account |
+| `POST` | `/auth/login` | Email + password login |
+| `GET` | `/auth/google` → `/auth/google/callback` | OAuth |
+| `POST` | `/auth/forgot` · `/auth/reset` | Password recovery |
+| `POST` | `/auth/refresh` · `/auth/logout` | Session |
+| `GET` `PATCH` | `/me` | Profile |
+| `GET` `POST` | `/travellers` | List / create traveller |
+| `PATCH` `DELETE` | `/travellers/:id` | Update / remove |
+| `GET` `POST` | `/trips` | List / create trip |
+| `GET` `PATCH` `DELETE` | `/trips/:id` | Read / update / archive |
+| `POST` | `/trips/:id/chat` | Send a turn (returns SSE stream) |
+| `GET` | `/trips/:id/messages` | Thread history |
+| `POST` | `/trips/:id/generate` | Force full re-plan |
+| `GET` | `/trips/:id/itinerary` | Items grouped by day |
+| `PATCH` | `/trips/:id/itinerary/:itemId` | Move, lock, edit, remove |
+| `GET` | `/trips/:id/flights` · `/hotels` · `/events` | Options by kind |
+| `POST` | `/trips/:id/options/:optionId/select` | Select an option |
+| `GET` | `/trips/:id/compliance` | Document requirements |
+| `POST` | `/trips/:id/compliance/recheck` | Re-verify |
+| `GET` | `/trips/:id/budget` | Allocation and variance |
+| `GET` | `/trips/:id/essentials` | Packing, weather, currency, emergency |
+| `POST` | `/trips/:id/export/pdf` | Queue export → `{ jobId }` |
+| `GET` | `/exports/:jobId` | Poll status / download URL |
+| `POST` `DELETE` | `/trips/:id/share` | Create / revoke share link |
+| `GET` | `/share/:token` | Public read-only trip |
+| `GET` | `/admin/metrics` · `/admin/providers` · `/admin/users` | Admin |
+| `GET` | `/health` · `/ready` | Probes |
+
+### Example — the core call
+
+```http
+POST /api/v1/trips/8f3a.../chat
+Authorization: Bearer <jwt>
+Idempotency-Key: 4c1e-...
+Content-Type: application/json
+
+{ "message": "Plan a 7-day London vacation for me, my wife and two kids",
+  "inputMode": "text" }
+```
+
+```
+event: tool_start
+data: {"tool":"search_flights","label":"Searching 42 airlines"}
+
+event: token
+data: {"text":"Seven days in London with a 6- and an 11-year-old — "}
+
+event: patch
+data: {"op":"add","path":"/itinerary/day/1","value":{ "...": "..." }}
+
+event: tool_end
+data: {"tool":"search_flights","count":7,"ms":2140}
+
+event: done
+data: {"tripState":"ready","tokensIn":4820,"tokensOut":1130,"costUsd":0.062}
+```
+
+---
+
+## 16. Microservice Design
+
+**Today: a modular monolith.** Each module is a folder with its own public interface and no cross-imports of internals, so extraction later is mechanical rather than archaeological.
+
+**Extraction triggers** — split a module out only when one of these is true: it needs independent scaling, it has a different availability requirement, or a separate team owns it.
+
+```mermaid
+flowchart TB
+    GW["API Gateway<br/>auth · rate limit · routing"]
+    GW --> AUTH["auth-service<br/>users, sessions, OAuth"]
+    GW --> TRIP["trip-service<br/>trips, travellers, itinerary<br/>OWNS trip data"]
+    GW --> AI["ai-orchestrator<br/>chat, tool loop, memory<br/>stateless, scales on chat load"]
+    GW --> DISC["discovery-service<br/>flights · hotels · places · events<br/>provider adapters + cache"]
+    GW --> COMP["compliance-service<br/>visa rules, documents<br/>own release cadence"]
+    GW --> EXP["export-service<br/>PDF, ics, share links"]
+    GW --> ADM["admin-service<br/>metrics, audit, flags"]
+
+    AI -->|sync| DISC
+    AI -->|sync| COMP
+    AI -->|sync| TRIP
+    TRIP -->|events| BUS[["Event bus<br/>trip.created · trip.updated<br/>plan.generated · compliance.flagged"]]
+    BUS --> EXP
+    BUS --> ADM
+    BUS --> NOT["notification-service<br/>email, push"]
+
+    AUTH --- DB1[("auth db")]
+    TRIP --- DB2[("trip db")]
+    COMP --- DB3[("compliance db")]
+    DISC --- CACHE[("Redis")]
+```
+
+| Service | Owns | Sync in | Async out | Scaling driver |
+|---|---|---|---|---|
+| `auth` | users, sessions | login, token refresh | `user.created` | Login spikes |
+| `trip` | trips, travellers, itinerary items | CRUD, patch apply | `trip.updated`, `plan.generated` | Read volume |
+| `ai-orchestrator` | prompts, tool loop, memory | `/chat` | `ai.cost.recorded` | Chat concurrency (the real one) |
+| `discovery` | provider adapters, cache, value scoring | search calls | `provider.degraded` | Provider QPS |
+| `compliance` | rules corpus, checks | check, recheck | `compliance.flagged` | Rules-release cadence |
+| `export` | PDFs, share tokens | export request | `export.ready` | Burst, queue-backed |
+| `admin` | metrics, audit log | admin reads | — | Low |
+
+**Saga — passport assistance** (the one multi-step flow worth modelling):
+`compliance.flagged(blocking)` → trip adds a document task → notification emails the user → user confirms action → compliance re-checks → on success `compliance.cleared`, trip header clears. Compensation: if the re-check still fails, the task stays open and the trip stays `Blocked` rather than silently passing.
+
+---
+
+## 17. Cloud Architecture
+
+Day one is **local Postgres + Vercel**: the database runs on your machine with trust authentication, which is exactly right when the budget is one day. The AWS path below is the month-6 shape, documented so the move is a decision rather than a rescue.
+
+### Day one
+
+| Layer | Choice | Why |
+|---|---|---|
+| Hosting | Vercel (Next.js, edge middleware) | Deploy on push, preview per PR, no ops |
+| Database | Local PostgreSQL 17 (`postgres`, empty password, trust auth) | No hosted dependency, no keys, runs offline |
+| Vectors | pgvector in the same Postgres | One less system |
+| Cache | Upstash Redis (serverless) | Per-request pricing, no cluster |
+| Files | Local filesystem, then object storage | PDFs |
+| Email | Resend | Verification, reset, export-ready |
+| Observability | Vercel Analytics + Sentry + Axiom | Traces and errors without a stack |
+| Secrets | `.env.local`, then Vercel env | — |
+
+### Month-6 AWS shape
+
+```mermaid
+flowchart TB
+    subgraph Users
+        BR[Browser / PWA]
+    end
+    BR --> CF["CloudFront + WAF<br/>TLS 1.3, rate limiting"]
+    CF --> S3W[("S3: static assets")]
+    CF --> ALB["ALB"]
+
+    subgraph VPC["VPC — 3 AZs"]
+        subgraph Public["Public subnets"]
+            NAT["NAT gateway"]
+        end
+        subgraph Private["Private subnets — ECS Fargate"]
+            SVC1["web / api tasks"]
+            SVC2["ai-orchestrator tasks"]
+            SVC3["discovery tasks"]
+            SVC4["workers: pdf, ingest"]
+        end
+        subgraph DataT["Data subnets"]
+            RDS[("RDS Postgres<br/>Multi-AZ + read replica")]
+            EC[("ElastiCache Redis")]
+        end
+    end
+
+    ALB --> SVC1 & SVC2 & SVC3
+    SVC2 --> EC
+    SVC1 & SVC2 & SVC3 --> RDS
+    SVC4 --> RDS
+    SQS[["SQS: pdf, ingest, recheck"]] --> SVC4
+    SVC1 --> SQS
+    SVC2 --> SM["Secrets Manager + KMS"]
+    SVC2 -.->|egress via NAT| EXT["LLM & travel APIs"]
+    SVC1 & SVC2 & SVC3 & SVC4 --> OBS["CloudWatch + OpenTelemetry → Grafana"]
+```
+
+**Environments:** `local` (Docker Compose) → `preview` (per PR, seeded) → `staging` (prod-shaped, synthetic data) → `production`.
+
+**CI/CD:** GitHub Actions — lint → typecheck → unit → integration (ephemeral Postgres) → build → **AI eval suite** → preview deploy → e2e (Playwright) → manual approve → production with health-gated rollout and auto-rollback.
+
+**IaC:** Terraform, one module per concern, remote state with locking. No console changes in any environment that matters.
+
+### Indicative monthly cost
+
+| Stage | Users | Infra | AI + APIs | Total |
+|---|---|---|---|---|
+| Day one | <100 | ~$0 (free tiers) | ~$20 | **~$20** |
+| Beta | 2k MAU | ~$120 | ~$600 | **~$720** |
+| Growth | 25k MAU | ~$900 | ~$6,500 | **~$7,400** |
+| Scale | 200k MAU | ~$5,500 | ~$38,000 | **~$43,500** |
+
+AI and API cost dominates from the first real user, which is why caching and model routing are architecture, not optimisation.
+
+---
+
+## 18. Security Architecture
+
+```mermaid
+flowchart TB
+    subgraph Z0["Untrusted — internet"]
+        U[User browser]
+        ATT[Attacker]
+    end
+    subgraph Z1["Edge"]
+        WAF["WAF: OWASP rules, bot + rate limiting"]
+        TLS["TLS 1.3 · HSTS preload"]
+    end
+    subgraph Z2["Application"]
+        MW["Session verify · CSRF · security headers"]
+        AUTHZ["Authorisation: deny by default<br/>ownership check on every trip resource"]
+        GUARD["AI guardrails<br/>injection filter · PII scrub · tool allowlist"]
+    end
+    subgraph Z3["Data — private, no internet ingress"]
+        PG[("Postgres + RLS<br/>field-level encryption")]
+        KMS["KMS envelope keys"]
+        AUD[("Append-only audit log")]
+    end
+    subgraph Z4["Third parties"]
+        LLMP["LLM provider"]
+        TRV["Travel APIs"]
+    end
+
+    U --> TLS --> WAF --> MW --> AUTHZ --> PG
+    ATT -.->|blocked| WAF
+    AUTHZ --> GUARD --> LLMP
+    GUARD -->|"no passport numbers<br/>no full DOB"| LLMP
+    AUTHZ --> TRV
+    PG --- KMS
+    AUTHZ --> AUD
+```
+
+| Domain | Controls |
+|---|---|
+| **Authentication** | bcrypt cost 10, in-house; breached-password check; 5 attempts per 15 min then backoff; mandatory 2FA for admins |
+| **Sessions** | 15-min access JWT, 30-day rotating refresh, reuse detection revokes the family, all-device logout |
+| **Authorisation** | Postgres RLS as the backstop plus an application ownership check. Two independent layers, because one is always the one that breaks |
+| **Data at rest** | AES-256 volumes; envelope encryption for passport fields and documents; keys in KMS, rotated ≤90 days |
+| **Data in transit** | TLS 1.3 only; certificate pinning for provider calls where supported |
+| **PII minimisation** | Prompts carry age bands and validity booleans, never passport numbers or full dates of birth |
+| **Document handling** | *(Phase 2)* explicit consent, encrypted at rest, auto-purge 90 days after the trip, never in logs or prompts |
+| **LLM threats** | Injection filter on input; retrieved content wrapped as untrusted data; tool allowlist with schema validation; output scanned for leaked system prompt or PII; 200-case red-team suite per release |
+| **Secrets** | KMS-backed manager, no secrets in code, images or CI logs; rotation automated |
+| **Headers** | CSP (nonce-based, no `unsafe-inline`), X-Frame-Options DENY, Referrer-Policy, Permissions-Policy |
+| **Supply chain** | Lockfiles, Dependabot, CI blocks on critical CVEs, weekly base-image rebuilds, SBOM per release |
+| **Audit** | Immutable log of admin actions, document access and conversation inspection, with reason codes; 7-year retention |
+| **Privacy** | GDPR + India DPDP: export, erasure within 30 days, consent records, purpose limitation, EU residency by month 12 |
+| **Testing** | SAST + dependency scan per PR; DAST nightly on staging; third-party penetration test before public launch |
+
+**Top five threats and their controls**
+
+| Threat | Control |
+|---|---|
+| Account takeover | 2FA for admins, breached-password check, rate limits, refresh-reuse detection |
+| IDOR on another user's trip | RLS + application ownership check; every endpoint tested for cross-tenant access |
+| Prompt injection via retrieved page content | Content wrapped as data, tool allowlist, output guard, red-team suite |
+| PII leakage through the LLM provider | Field minimisation before prompt assembly; no document content ever sent |
+| Provider key abuse / cost blowout | Per-provider quotas, daily spend cap with kill switch, anomaly alerting |
+
+---
+
+## 19. Data Models
+
+Canonical shapes shared by API, orchestrator and client. TypeScript is the source of truth; Zod validates at the boundary.
+
+```ts
+type UUID = string; type ISODate = string; type ISODateTime = string;
+
+interface Trip {
+  id: UUID; userId: UUID; title: string;
+  status: 'draft' | 'planned' | 'upcoming' | 'active' | 'completed' | 'archived';
+  state: 'idle' | 'gathering' | 'drafting' | 'ready' | 'refining' | 'blocked' | 'packaged';
+  destination: { city: string; country: string; iata?: string; lat: number; lng: number };
+  origin?: { city: string; iata?: string };
+  dates: { start?: ISODate; end?: ISODate; durationDays: number; flexible: boolean };
+  party: { adults: number; children: number[] };      // children as ages
+  budget?: { total: number; currency: string; perPerson: boolean };
+  pace: 'relaxed' | 'balanced' | 'packed';
+  interests: string[];
+  assumptions: string[];                               // defaults we applied, shown in the UI
+  createdAt: ISODateTime; updatedAt: ISODateTime;
+}
+
+interface Traveller {
+  id: UUID; name: string; birthDate?: ISODate; ageBand: 'infant'|'child'|'teen'|'adult'|'senior';
+  nationality: string;                                 // ISO-3166 alpha-2
+  passport: { status: 'valid' | 'expiring' | 'expired' | 'none'; expiry?: ISODate };
+}
+
+interface ItineraryItem {
+  id: UUID; tripId: UUID; dayNumber: number; date: ISODate;
+  slot: 'morning' | 'afternoon' | 'evening';
+  type: 'activity' | 'meal' | 'transport' | 'flight' | 'checkin' | 'free';
+  title: string; description?: string;
+  place?: { id: string; name: string; lat: number; lng: number; address?: string };
+  startTime?: string; durationMin: number;
+  cost?: { amount: number; currency: string; per: 'person' | 'group' };
+  travelFromPrev?: { mode: 'walk'|'transit'|'taxi'|'drive'; minutes: number; distanceKm: number };
+  ageBands: string[]; ticketRequired: boolean; bookingUrl?: string;
+  locked: boolean; sortOrder: number;
+  source: { tool: string; fetchedAt: ISODateTime };    // provenance is mandatory
+}
+
+interface FlightOffer {
+  id: UUID; kind: 'flight'; provider: string;
+  price: { amount: number; currency: string; perPerson: boolean };
+  slices: Array<{
+    origin: string; destination: string;
+    departAt: ISODateTime; arriveAt: ISODateTime;
+    durationMin: number; stops: number; carrier: string; flightNumbers: string[];
+    layovers?: Array<{ airport: string; minutes: number }>;
+  }>;
+  baggage: { cabin: number; checked: number };
+  valueScore: number; reason: string;                  // one line, shown in the UI
+  fetchedAt: ISODateTime; expiresAt: ISODateTime; deepLink: string;
+}
+
+interface HotelOffer {
+  id: UUID; kind: 'hotel'; provider: string; name: string;
+  tier: 'budget' | 'mid' | 'luxury'; stars?: number;
+  rating?: { score: number; count: number; source: string };
+  location: { lat: number; lng: number; area: string;
+              distanceToCentreKm: number; transitMinutes?: number; nearestTransit?: string };
+  price: { nightly: number; total: number; currency: string; taxesIncluded: true };
+  occupancy: { maxAdults: number; maxChildren: number; rooms: number };
+  amenities: string[]; familyFriendly: boolean; stepFree: boolean;
+  valueScore: number; reason: string;
+  fetchedAt: ISODateTime; deepLink: string;
+}
+
+interface ComplianceResult {
+  tripId: UUID; travellerId: UUID;
+  docType: 'passport' | 'visa' | 'insurance' | 'health';
+  status: 'satisfied' | 'required' | 'in_progress' | 'blocking';
+  severity: 'info' | 'warning' | 'blocking';
+  outcome?: 'not_required' | 'eta_required' | 'evisa' | 'visa_on_arrival' | 'embassy_required';
+  requirement: string;                                 // human-readable
+  details?: { passportValidityMonths?: number; shortfallDays?: number;
+              minCoverAmount?: number; processingDays?: number; feeBand?: string };
+  sourceUrl: string; verifiedOn: ISODate;              // never optional
+  disclaimer: 'Guidance only — confirm with the official source';
+}
+
+interface Budget {
+  tripId: UUID; currency: string; cap?: number;
+  categories: Record<'flights'|'lodging'|'activities'|'food'|'transport'|'other',
+                     { planned: number; perPerson: number }>;
+  buffer: number; total: number;
+  variance: { amount: number; overBy?: number; causedBy?: string; suggestions: string[] };
+}
+
+// The model proposes this; the server validates and applies it. The model never writes to the DB.
+interface TripPatch {
+  tripId: UUID;
+  set?: Partial<Pick<Trip,'destination'|'dates'|'party'|'budget'|'pace'|'interests'|'title'>>;
+  itinerary?: { add?: ItineraryItem[]; update?: Array<Partial<ItineraryItem> & {id: UUID}>;
+                remove?: UUID[] };
+  options?: { add?: Array<FlightOffer | HotelOffer>; select?: UUID[] };
+  assumptions?: string[];
+  rationale: string;                                   // why this change, shown to the user
+}
+```
+
+### Tool I/O contracts (the orchestrator's registry)
+
+| Tool | Input | Output |
+|---|---|---|
+| `search_flights` | `{origin, destination, departDate, returnDate?, adults, children[], cabin?}` | `FlightOffer[]` |
+| `search_hotels` | `{city, checkIn, checkOut, adults, children[], tier?, maxPrice?}` | `HotelOffer[]` |
+| `search_places` | `{city, interests[], ageBands[], limit}` | `Place[]` with hours + duration |
+| `search_events` | `{city, from, to, categories[]}` | `Event[]` |
+| `get_weather` | `{city, from, to}` | `{daily[], isForecast, isNormals}` |
+| `check_compliance` | `{nationalities[], destination, purpose, durationDays, departDate, passports[]}` | `ComplianceResult[]` |
+| `build_itinerary` | `{trip, places[], anchors[], pace, constraints}` | `ItineraryItem[]` — **deterministic, no LLM** |
+| `compute_budget` | `{trip, selections, items}` | `Budget` — **deterministic, no LLM** |
+| `convert_currency` | `{from, to, amount}` | `{rate, amount, asOf}` |
+
+---
+
+## 20. Feature Prioritization
+
+RICE = Reach × Impact × Confidence ÷ Effort. Effort in person-days. Scored for the one-day build.
+
+| Feature | Reach | Impact | Conf. | Effort | RICE | Verdict |
+|---|---:|---:|---:|---:|---:|---|
+| AI chat + slot filling | 100 | 3 | 0.9 | 0.5 | **540** | Must |
+| Day-wise itinerary generation | 100 | 3 | 0.9 | 0.5 | **540** | Must |
+| Beautiful workspace UI | 100 | 3 | 1.0 | 1.0 | **300** | Must |
+| Auth (email + Google) | 100 | 2 | 1.0 | 0.3 | **667** | Must |
+| Compliance: passport + visa | 85 | 3 | 0.8 | 0.5 | **408** | Must |
+| Flights (seeded) | 95 | 2 | 0.9 | 0.3 | **570** | Must |
+| Hotels (seeded) | 95 | 2 | 0.9 | 0.3 | **570** | Must |
+| Budget breakdown | 80 | 2 | 0.9 | 0.2 | **720** | Must |
+| Voice input | 60 | 2 | 0.9 | 0.2 | **540** | Must |
+| Essentials (packing/weather/currency) | 75 | 2 | 0.9 | 0.3 | **450** | Must |
+| PDF export | 70 | 2 | 0.8 | 0.4 | **280** | Should |
+| Events discovery | 55 | 2 | 0.7 | 0.3 | **257** | Should |
+| Drag-and-drop re-flow | 45 | 2 | 0.7 | 0.5 | **126** | Could |
+| Share link | 50 | 2 | 0.8 | 0.3 | **267** | Should |
+| Admin dashboard | 5 | 2 | 0.9 | 0.5 | **18** | Could |
+| Route optimisation (2-opt) | 60 | 2 | 0.7 | 0.4 | **210** | Should |
+| Booking | 40 | 3 | 0.4 | 10 | **4.8** | Won't (Phase 2) |
+| Collaboration | 30 | 2 | 0.5 | 6 | **5** | Won't (Phase 2) |
+| Document vault | 20 | 2 | 0.5 | 4 | **5** | Won't (Phase 2) |
+| Native app | 35 | 2 | 0.4 | 20 | **1.4** | Won't (Phase 3) |
+
+**MoSCoW cut line for one day:** everything scored **Must** plus PDF export. Should-haves land only if the Musts finish early.
+
+---
+
+## 21. MVP Scope — the one-day build
+
+### Hour-by-hour plan
+
+| Block | Hours | Work | Done when |
+|---|---|---|---|
+| **0 · Setup** | 0.5 | `create-next-app`, Tailwind, shadcn/ui, local Postgres + `schema.sql`, env | `select 1` returns from a route handler |
+| **1 · Design system** | 1.0 | Tokens, dark/light, glass card, button, input, chip, skeleton, layout shell | Storybook-less demo page shows every primitive |
+| **2 · Auth** | 1.0 | bcrypt + JWT cookies, signup/login/reset screens, route guards | Can sign up, log out, log in, reset |
+| **3 · Data layer** | 0.75 | `schema.sql` applied, RLS policies, seed flights/hotels/places/visa rules | Seeded queries return from the client |
+| **4 · Dashboard** | 0.75 | Composer, suggested prompts, trips grid, empty state, voice input | Typing a prompt creates a trip and routes to the workspace |
+| **5 · Chat + orchestrator** | 2.0 | `/api/chat` SSE, system prompt, tool registry, slot filling, `TripPatch` apply | A sentence produces a full plan end to end |
+| **6 · Workspace UI** | 2.0 | Two-pane shell, six tabs, day cards, travel connectors, tool chips, progressive fill | Every tab renders real data with real states |
+| **7 · Compliance + budget** | 0.75 | Visa rule lookup, passport shortfall maths, status chips, budget allocation | A blocking passport case shows correctly |
+| **8 · Package + polish** | 1.0 | Print-stylesheet PDF view, share link, mobile sheet, focus states, reduced motion | Export works on a phone; Lighthouse ≥90 |
+| **Buffer** | 0.75 | Bugs, copy, seed realism | — |
+| **Total** | **~10.5 h** | | |
+
+Two developers split at block 4: one takes 5 and 7 (AI + logic), one takes 6 and 8 (UI + polish).
+
+### In scope
+
+Auth · onboarding · dashboard · AI chat with voice and memory · slot filling · itinerary generation with clustering, routing, opening hours and walking caps · flights and hotels from seeded data with value scoring · attractions with age bands · compliance for passport, visa and insurance across the seeded nationality × destination matrix · budget · packing, weather, currency, emergency · trip list · PDF-ready package view · fully responsive dark/light UI.
+
+### Out of scope today
+
+Booking or payments · real supplier contracts · document uploads · collaboration · native app · multilingual · admin dashboard beyond a metrics stub · RAG over a large corpus (seeded rules table only) · events (seeded, if time) · drag-and-drop.
+
+### Definition of done
+
+1. A new user completes landing → signup → one sentence → full plan → PDF in under three minutes on a phone.
+2. The eight required deliverable surfaces (dashboard, workspace, six tabs) are all real — no placeholder panels.
+3. Lighthouse: Performance ≥90, Accessibility ≥95 on dashboard and workspace.
+4. Zero console errors; zero layout shift on load.
+5. A blocking passport case and a visa-required case both render correctly with sources.
+6. Dark and light both pass 4.5:1 contrast on body text.
+7. The app is deployed at a public URL.
+
+---
+
+## 22. Phase 2 Features
+
+*Weeks 2–12 — turn the planner into an agent.*
+
+| Feature | Why now |
+|---|---|
+| Real supplier integrations (Amadeus/Duffel flights, Booking hotels) | Live prices are the credibility threshold for paying users |
+| In-app booking for flights, hotels, activities, insurance | Where the revenue is |
+| Payments (Stripe subscriptions + partner checkout) | Monetise the planning value already delivered |
+| Collaboration: shared trips, roles, comments, voting | Trips are rarely planned alone |
+| Document vault with encrypted uploads | Enables passport-page and visa-document checks |
+| Drag-and-drop itinerary editing with re-flow | The most requested manual control |
+| Events with live ticket availability | Anchors the couple persona's trip |
+| Native app (React Native) with live-trip mode | Day-of-travel use needs offline and notifications |
+| Calendar sync (.ics, Google) | Business traveller requirement |
+| Full admin suite with prompt management and evals | Operating the AI responsibly at volume |
+| RAG at scale over destination corpora | Depth beyond the seeded rules |
+| Schengen 90/180 calculator, multi-passport | Unlocks the frequent-traveller advocate segment |
+
+## 23. Phase 3 Features
+
+*Months 4–12 — become the operating system.*
+
+| Feature | Why |
+|---|---|
+| Autonomous disruption recovery (rebook on cancellation) | The highest-value moment in travel; nobody does it well |
+| Live trip mode: daily brief, nudges, real-time replanning | Converts a planning tool into a daily companion |
+| Marketplace: local guides, experiences, private transport | Margin beyond affiliate rates |
+| B2B white-label for agencies and corporates | Per-seat revenue, low marginal cost |
+| Loyalty and points optimisation across programmes | Sticky, high-perceived-value for frequent flyers |
+| Group coordination at scale (10+ travellers, split payments) | Weddings and reunions are underserved and high-ticket |
+| Multilingual and multi-currency across all surfaces | International expansion |
+| Predictive pricing ("book now or wait") | Trust-building, proven demand |
+| Human concierge escalation for the Concierge tier | Retention hook for the luxury persona |
+
+---
+
+## 24. Risks and Mitigation
+
+| # | Risk | Likelihood | Impact | Mitigation | Early warning |
+|---|---|---|---|---|---|
+| 1 | AI hallucinates prices, hours or visa rules | High | Severe — trust and liability | Everything from tools; grounding check drops unsupported claims; compliance answers come from the rules table, not the model | Grounding failures in eval; user reports |
+| 2 | One day is not enough; nothing is finished | High | High | Hour-by-hour plan with a buffer; seeded data instead of live APIs; Musts only; UI shell before logic | Block 5 not started by hour 5 |
+| 3 | Itinerary is physically impossible (closed venues, absurd transits) | Medium | High | Deterministic engine, not the LLM, for routing and time-fit; hard validation before render | Itinerary-validity eval below gate |
+| 4 | Supplier API cost or rate limits bite | Medium | High | Cache-first, token buckets, seeded fallback, per-provider kill switch | Quota headroom under 20% |
+| 5 | LLM cost per plan exceeds revenue | Medium | High | Model routing by task, 6-iteration cap, prompt caching, daily spend cap | Cost per plan over $1.10 at p90 |
+| 6 | Prompt injection via retrieved web content | Medium | Severe | Retrieved content as data, tool allowlist, output guard, red-team suite per release | Any red-team success |
+| 7 | Compliance error causes a denied boarding | Low | Severe | Rules corpus with source and verified date; stale rules shown as stale; disclaimer plus official link; never state an outcome not in the table | Rules older than 30 days on a live trip |
+| 8 | Beautiful UI slows the product down | Medium | Medium | Performance budget in CI; blur limited to static surfaces; bundle ≤220 KB | Lighthouse under 90 |
+| 9 | Incumbent ships conversational planning first | Medium | High | Win on compliance depth and plan quality, not chat novelty; ship weekly | Competitor launch |
+| 10 | Users plan but never book (no monetisation) | High | High | Affiliate deep links from day one; subscription for planning value; measure plan→click | Click-through under 8% |
+| 11 | PII exposure through prompts or logs | Low | Severe | Field minimisation, no passport numbers in prompts, log scrubbing, pen test | Any PII found in logs |
+| 12 | Seeded data feels fake and kills credibility | Medium | Medium | Realistic seeds: real carriers, real hotels, real prices, honest "sample data" labelling | Beta feedback |
+
+---
+
+## 25. Monetization Strategy
+
+Three streams, deliberately layered so planning value is captured before booking exists.
+
+### Subscription
+
+| Tier | Price | Includes | Target |
+|---|---|---|---|
+| **Free** | $0 | 2 active trips, 3 full plans/month, PDF with branding | Acquisition |
+| **Explorer** | **$9/mo** or $79/yr | Unlimited trips and plans, no branding, share links, voice, priority generation | Couples, solo, families |
+| **Concierge** | **$29/mo** or $249/yr | Everything, plus human plan review, luxury curation, 24/7 chat priority, document tracking | Luxury, frequent travellers |
+| **Teams** *(Phase 3)* | $19/seat/mo | Policy, approvals, central billing, reporting | SMB business travel |
+
+### Affiliate and referral
+
+| Partner type | Typical commission | Per-trip revenue at realistic conversion |
+|---|---|---|
+| Hotels (Booking/Expedia affiliate) | 4–7% of stay | $14–28 |
+| Flights (metasearch referral) | $1–4 per segment | $3–9 |
+| Travel insurance | 20–35% of premium | $12–22 |
+| Activities and tours (GetYourGuide/Viator) | 8–12% | $6–14 |
+| eSIM / connectivity | 15–25% | $2–5 |
+| Visa services | $8–20 per application | $8–20 |
+
+**Blended target: ~$38 revenue per completed plan** that converts, at an assumed 22% conversion to at least one click-through purchase.
+
+### Unit economics per completed plan
+
+| Line | Amount |
+|---|---|
+| LLM tokens (routed, cached) | $0.28 |
+| Travel API calls | $0.22 |
+| Infrastructure, amortised | $0.09 |
+| **Total cost** | **$0.59** (p90 ceiling $1.10) |
+| Affiliate revenue, probability-weighted | $8.40 |
+| Subscription revenue, amortised per plan | $3.10 |
+| **Contribution per plan** | **≈ $10.90** |
+
+With a $14 blended CAC target, payback lands inside two plans — which makes activation (plans per new user in week one) the metric that matters most commercially.
+
+**Not doing:** selling user data, ads inside the itinerary, or burying affiliate relationships. Recommendations are ranked by value score; monetised links are disclosed. Ranking that follows commission destroys the only asset we have.
+
+---
+
+## 26. Competitor Analysis
+
+| Competitor | What it is | Strong at | Weak at | What we do differently |
+|---|---|---|---|---|
+| **Booking.com / Expedia** | OTA with huge inventory | Supply, price, trust, booking | No planning intelligence; destination-at-a-time; search-form UX | Plan first, book second; one conversation across the whole trip |
+| **Google Travel / Flights** | Meta-search + trip hub | Flight data quality, free, ubiquitous | No itinerary reasoning, no compliance, no personalisation | Day-level reasoning and document requirements |
+| **ChatGPT / general assistants** | General LLM | Natural conversation, broad knowledge | Stale prices, no live inventory, no persistent trip artifact, no document tracking | Grounded tool calls, a living trip object, compliance engine |
+| **Mindtrip / Layla / Wonderplan** | AI trip planners | Conversational UX, inspiration, nice visuals | Thin compliance, shallow budget logic, weak family handling | Compliance depth, budget enforcement, age-aware family planning |
+| **TripIt** | Itinerary organiser | Parsing confirmations, Pro alerts | Organises only *after* you book; no planning | Plans from intent; organising is a by-product |
+| **Wanderlog / Roadtrippers** | Collaborative planners | Maps, collaboration, route planning | Manual effort; no AI synthesis; no compliance | AI does the assembly; compliance included |
+| **Hopper** | Price prediction + booking | Price timing, mobile UX | Narrow — fares and stays only | Whole-trip scope |
+| **Navan / TravelPerk** | Corporate travel | Policy, approvals, expense | Not for leisure; enterprise sales motion | Leisure-first, with Teams as a Phase 3 extension |
+| **Human travel agents** | Expert service | Taste, accountability, complex trips | $150–500 per trip, slow, limited hours | Agent-quality output in three minutes, with concierge escalation for the top tier |
+
+### Where we win
+
+1. **Compliance as a first-class feature.** Nobody in the AI-planner set treats passport validity and visa requirements as a tracked, cited, severity-ranked part of the plan. It is the difference between a suggestion engine and a planning system.
+2. **Budget that actually binds.** Competitors show prices. We enforce a cap across six categories and name the constraint when it breaks.
+3. **Age-aware family logic.** A 6-year-old changes walking distance, activity choice, meal timing and hotel occupancy. Most tools treat children as a headcount.
+4. **The artifact, not just the chat.** A living trip document the user can edit, share and export, with the conversation as its history.
+5. **The interface.** In a category of functional-but-ugly tools, a genuinely beautiful product is a durable advantage — it is what gets shared.
+
+### Where we are weak, honestly
+
+No inventory, no brand, no booking in v1, and a compliance corpus we must maintain. The first three are fixable with partnerships; the fourth is the moat, and maintaining it is the cost of having one.
+
+---
+
+## 27. Success Metrics
+
+**North Star: Completed Plans per Week** — a plan with an itinerary, flights, stays and a resolved document check that the user saved, shared or exported. It captures value delivered, not activity.
+
+| Stage | Metric | Day-one target | 30 days | 90 days |
+|---|---|---|---|---|
+| **Acquisition** | Landing → signup | 20% | 25% | 30% |
+| | Prompt typed on landing → signup | 45% | 50% | 55% |
+| **Activation** | Signup → first plan generated | 65% | 75% | 80% |
+| | Time to first plan | <4 min | <3 min | <2.5 min |
+| **Core quality** | **Itinerary Acceptance Rate** | 40% | 50% | 55% |
+| | Plans per activated user, week 1 | 1.3 | 1.8 | 2.2 |
+| | Turns to a usable plan | <7 | <6 | <5 |
+| **Engagement** | Plan → PDF or share | 30% | 40% | 45% |
+| | Voice input usage | 10% | 18% | 25% |
+| **Retention** | Week-4 return | — | 22% | 30% |
+| | Trips per user per year | — | — | 2.4 |
+| **Monetisation** | Free → paid | — | 3% | 6% |
+| | Plan → affiliate click | 12% | 18% | 22% |
+| **AI quality** | Grounding failures per 100 claims | <3 | <2 | <1 |
+| | Compliance accuracy on golden set | ≥99% | ≥99% | ≥99.5% |
+| | Cost per completed plan | <$1.10 | <$0.80 | <$0.59 |
+| **Reliability** | API availability | 99.5% | 99.9% | 99.9% |
+| | Chat first token p90 | <2 s | <1.5 s | <1.2 s |
+| **Experience** | Lighthouse performance / a11y | 90 / 95 | 92 / 98 | 95 / 100 |
+| | CSAT on generated plans | 4.0/5 | 4.3/5 | 4.5/5 |
+
+### Counter-metrics watched to avoid optimising the wrong thing
+
+| Counter-metric | Guard against | Ceiling |
+|---|---|---|
+| Turns per plan | Chat engagement theatre instead of a fast plan | Must fall, never rise |
+| Regeneration rate | Hiding bad first plans behind a retry button | <20% |
+| Support tickets about document advice | Compliance quality drift | <1% of plans |
+| p90 generation time | Feature creep in the orchestrator | <25 s |
+
+---
+
+## 28. Development Roadmap
+
+```mermaid
+gantt
+    title JourneyOS — from a one-day build to an operating system
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+
+    section Day 1 — MVP
+    Setup + design system          :done, d1, 2026-10-04, 1d
+    Auth + data + dashboard        :done, d2, 2026-10-04, 1d
+    Chat orchestrator + workspace  :done, d3, 2026-10-04, 1d
+    Compliance + budget + package  :done, d4, 2026-10-04, 1d
+
+    section Weeks 1-4 — Harden
+    Real flight & hotel APIs       :a1, 2026-10-06, 14d
+    Eval suites + CI gates         :a2, 2026-10-06, 10d
+    PDF, share, events             :a3, 2026-10-13, 10d
+    Private beta (50 users)        :milestone, m1, 2026-10-27, 0d
+
+    section Weeks 5-12 — Phase 2
+    Booking flow + payments        :b1, 2026-10-27, 28d
+    Collaboration + roles          :b2, 2026-11-10, 21d
+    Document vault                 :b3, 2026-11-24, 14d
+    Drag-drop + route v2           :b4, 2026-11-24, 14d
+    Public beta                    :milestone, m2, 2026-12-15, 0d
+
+    section Months 4-6 — Scale
+    Native app + live trip mode    :c1, 2026-12-22, 45d
+    RAG at scale + multilingual    :c2, 2027-01-12, 30d
+    Admin suite + prompt ops       :c3, 2027-01-26, 21d
+    General availability           :milestone, m3, 2027-02-16, 0d
+
+    section Months 7-12 — Phase 3
+    Disruption recovery agent      :e1, 2027-02-16, 60d
+    Marketplace                    :e2, 2027-03-16, 60d
+    B2B white-label                :e3, 2027-04-13, 75d
+    Series A readiness             :milestone, m4, 2027-07-01, 0d
+```
+
+### Gates
+
+| Milestone | Cannot pass without |
+|---|---|
+| **Private beta** | Compliance accuracy ≥99% on the golden set · 0 red-team successes · Lighthouse ≥90 |
+| **Public beta** | Itinerary acceptance ≥50% · cost per plan <$0.80 · 99.9% availability for 30 days |
+| **GA** | Free→paid ≥5% · week-4 retention ≥28% · pen test clean |
+| **Series A readiness** | $40k MRR · 25k MAU · plan→booking ≥20% |
+
+---
+
+## 29. Team Structure
+
+### Day one
+
+| Role | Count | Owns |
+|---|---|---|
+| Full-stack engineer (AI) | 1 | Orchestrator, tools, compliance logic, data layer |
+| Full-stack engineer (UI) | 1 | Design system, dashboard, workspace, all six tabs, polish |
+
+Two people, one day. Any more and coordination eats the schedule.
+
+### Phase 1 team (weeks 1–12)
+
+| Role | Count | Owns |
+|---|---|---|
+| Product Manager | 1 | Scope, priorities, metrics, partner conversations |
+| Tech Lead / Architect | 1 | Architecture, code review, release gates |
+| Frontend engineers | 2 | Workspace, design system, mobile, accessibility |
+| Backend engineers | 2 | API, data, providers, exports |
+| AI engineer | 1 | Prompts, tool loop, evals, cost control |
+| Data engineer *(half-time)* | 0.5 | Compliance ingestion pipeline, freshness jobs |
+| Product designer | 1 | Flows, design system, prototypes |
+| QA / automation | 1 | E2E, eval harness, release verification |
+| DevOps *(half-time)* | 0.5 | IaC, CI/CD, observability |
+| **Total** | **~10** | |
+
+### Phase 2 additions (→ 18)
+
+Mobile engineer ×2, content/compliance specialist ×1, growth engineer ×1, support lead ×1, partnerships manager ×1, second designer, second AI engineer.
+
+### Squads from month 4
+
+| Squad | Mission | Headcount |
+|---|---|---|
+| **Plan** | Chat, orchestrator, itinerary quality | 5 |
+| **Discover** | Providers, inventory, ranking, booking | 5 |
+| **Trust** | Compliance, security, privacy | 3 |
+| **Experience** | Design system, mobile, performance, accessibility | 4 |
+| **Platform** | Infra, CI/CD, observability, cost | 3 |
+
+### RACI on decisions that matter
+
+| Decision | Responsible | Accountable | Consulted | Informed |
+|---|---|---|---|---|
+| Scope cut during the build | PM | Tech Lead | Engineers | All |
+| Model choice and routing | AI engineer | Tech Lead | PM (cost) | All |
+| Compliance rule publication | Compliance specialist | PM | Legal | Support |
+| Release go / no-go | Tech Lead | PM | QA | All |
+| Pricing change | PM | Founder | Finance, Growth | All |
+| Security incident response | Tech Lead | Founder | DevOps, Legal | All |
+
+---
+
+## 30. Technology Stack Recommendation
+
+| Layer | Choice | Why this | Rejected |
+|---|---|---|---|
+| **Framework** | **Next.js 15 (App Router) + React 19** | Server components, streaming, API routes and hosting in one thing — the only realistic choice for a one-day full-stack build | Remix (smaller ecosystem), separate SPA + API (two deploys, no time) |
+| **Language** | TypeScript (strict) | One language across client, server and tool schemas | JavaScript (no contract safety) |
+| **Styling** | **Tailwind CSS v4 + CSS custom properties** | Token-driven theming, dark mode and fast iteration without leaving the markup | CSS-in-JS (runtime cost), plain CSS (too slow to build in) |
+| **Components** | shadcn/ui + Radix primitives | Accessible by default, owned in-repo so it can be restyled freely | MUI (hard to make non-generic), building from scratch |
+| **Animation** | Framer Motion | Stagger and layout transitions are the UI's signature; honours reduced motion | CSS only (no layout animation), GSAP (heavier) |
+| **State** | TanStack Query + Zustand | Server state cached properly; a tiny client store for UI state | Redux (ceremony), Context only (re-render churn) |
+| **Validation** | Zod | One schema validates the API boundary, tool I/O and `TripPatch` | Yup, io-ts |
+| **Auth** | **In-house: `bcryptjs` + `jose` JWTs in httpOnly cookies** | No hosted dependency; works against a local database with blank credentials; edge-safe verification in middleware | Supabase Auth (needs a hosted project and keys), NextAuth (more wiring), Clerk (cost at scale) |
+| **Database** | **Local PostgreSQL 17** + `pg` + Drizzle | Relational, JSONB for provider payloads, full-text search for the knowledge corpus, zero hosted setup | MongoDB (relations matter here), Supabase (hosted, needs keys), separate vector DB (extra system) |
+| **ORM** | Drizzle | SQL-first, typed, light migrations | Prisma (heavier client), raw SQL only |
+| **Cache** | Upstash Redis | Serverless pricing, no cluster to run | In-memory only (lost on deploy) |
+| **LLM** | Frontier model for planning + a small fast model for extraction, via a provider-agnostic layer | Reliable tool calling; routing is where the margin lives; swappable providers | Single-model-for-everything (cost), local models (latency and quality) |
+| **Voice** | Web Speech API, falling back to a hosted STT | Free, instant, no infra | Always-hosted STT (cost and latency for day one) |
+| **Maps** | Mapbox GL JS | Best dark-theme styling, good clustering | Google Maps (expensive, harder to theme) |
+| **Travel data** | Amadeus (flights), Booking/Expedia affiliate (hotels), Google Places, Open-Meteo, Ticketmaster | Self-serve, sandbox-friendly | Direct airline deals (impossible at this stage) |
+| **PDF** | React PDF renderer, or print stylesheet for day one | Print CSS ships in minutes and looks right | Headless Chrome service (overkill today) |
+| **Email** | Resend | Deliverability without setup | SES (more setup) |
+| **Hosting** | Vercel | Push to deploy, previews, edge middleware | AWS day one (hours of setup for no benefit) |
+| **Observability** | Sentry + Axiom + OpenTelemetry | Errors, logs and traces including tool and model spans | Console logs |
+| **Testing** | Vitest + Playwright + a custom AI eval harness | Unit, e2e and — critically — AI regression gates | Jest, Cypress |
+| **CI/CD** | GitHub Actions | Free, fast, with the eval suite as a release gate | Jenkins |
+
+### Repository shape
+
+```
+journeyos/
+├── app/
+│   ├── (marketing)/              # landing, pricing
+│   ├── (auth)/                   # signup, login, reset
+│   ├── (app)/
+│   │   ├── dashboard/
+│   │   ├── trips/[id]/           # the workspace
+│   │   └── settings/
+│   ├── share/[token]/            # public read-only trip
+│   ├── admin/
+│   └── api/v1/
+│       ├── chat/route.ts         # SSE
+│       ├── trips/…
+│       └── compliance/…
+├── lib/
+│   ├── ai/                       # orchestrator, prompts, tools, guards, routing
+│   ├── itinerary/                # cluster, route, time-fit  (pure, tested, no LLM)
+│   ├── compliance/               # rule resolution, severity, citations
+│   ├── providers/                # flights, hotels, places, weather, fx adapters
+│   ├── db/                       # drizzle schema, queries, RLS helpers
+│   └── utils/
+├── components/
+│   ├── ui/                       # design-system primitives
+│   ├── chat/                     # thread, bubble, composer, tool chips
+│   └── trip/                     # day card, flight card, hotel card, doc row, budget
+├── data/seed/                    # flights, hotels, places, visa rules
+├── tests/{unit,e2e,evals}/
+└── schema.sql
+```
+
+---
+
+## 31. Appendix
+
+### A. Glossary
+
+| Term | Meaning |
+|---|---|
+| **Trip state object** | Canonical JSON holding everything known about a trip; the model reasons over this, not the transcript |
+| **TripPatch** | Validated change proposal the model emits; the server applies it, the model never writes to the DB |
+| **Slot** | A fact needed before planning (destination, dates, origin, budget, party) |
+| **Anchor** | A fixed itinerary item others are arranged around (a flight, a timed event) |
+| **Value score** | Deterministic 0–100 ranking over price, duration, convenience and quality |
+| **Blocking** | A document issue that would prevent travel; pinned to the trip header until resolved |
+| **Grounding** | Every factual claim traceable to a tool call or retrieved chunk |
+| **Itinerary Acceptance Rate** | Share of generated plans saved, shared or exported without a full regeneration |
+| **Golden set** | Fixed labelled cases that gate every release |
+
+### B. Third-party APIs
+
+| Provider | Used for | Free tier | Fallback |
+|---|---|---|---|
+| Amadeus Self-Service | Flight search | Test env, limited QPS | Seeded data; Duffel later |
+| Booking/Expedia affiliate | Hotel search | Partner approval needed | Seeded data |
+| Google Places | Attractions, hours, geocoding | $200/mo credit | OpenStreetMap + Overpass |
+| Open-Meteo | Weather forecast and normals | Free, no key | OpenWeatherMap |
+| exchangerate.host | FX rates | Free | Fixed table, labelled stale |
+| Ticketmaster Discovery | Events | 5k calls/day | Curated seed |
+| Mapbox | Maps | 50k loads/mo | Static map images |
+| LLM provider | Planning and extraction | Pay per token | Secondary provider on failover |
+
+### C. Open questions for day one
+
+1. **Live or seeded supplier data?** Recommendation: seeded for the build, live behind a flag immediately after. Amadeus sandbox approval is not same-day reliable.
+2. **Voice: Web Speech API only?** Recommendation: yes for day one. It is free and instant; Safari gaps are acceptable with a typed fallback.
+3. **How many nationality × destination pairs in the seeded rules?** Recommendation: 10 nationalities × 15 destinations = 150 rows. Enough to demo every outcome type honestly.
+4. **PDF: print stylesheet or rendered?** Recommendation: print stylesheet today, rendered PDF in week 2.
+5. **Does the admin dashboard ship today?** Recommendation: a single metrics page only; the full suite is Phase 2.
+
+### D. Accessibility checklist for the build
+
+- [ ] Every interactive element reachable and operable by keyboard
+- [ ] Visible focus ring on all controls, 3:1 against the surface
+- [ ] Body text contrast ≥4.5:1 in both themes
+- [ ] Chat uses `aria-live="polite"`; streaming does not re-announce the full message
+- [ ] Mic button has a text label, not an icon alone
+- [ ] All images and map markers have text alternatives
+- [ ] `prefers-reduced-motion` disables stagger, parallax and sheet spring
+- [ ] Forms: labels tied to inputs, errors announced and linked
+- [ ] Touch targets ≥44 × 44 px
+- [ ] Zoom to 200% without loss of content or function
+
+---
+
+*End of document. Companion files: [`IMPLEMENTATION.md`](IMPLEMENTATION.md) — the build order and code · [`ui-prototype.html`](ui-prototype.html) — the interactive UI · [`PRD.html`](PRD.html) · [`schema.sql`](schema.sql) · [`api.md`](api.md)*
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+
+/* theme */
+const root = document.documentElement;
+try{ const s = localStorage.getItem('journeyos-prd-theme'); if(s) root.dataset.theme = s; }catch(e){}
+$('#themeBtn').addEventListener('click', () => {
+  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  try{ localStorage.setItem('journeyos-prd-theme', root.dataset.theme); }catch(e){}
+  renderMermaid(true);
+});
+$('#menuBtn').addEventListener('click', () => $('#toc').classList.toggle('open'));
+
+/* render markdown */
+const src = $('#md').textContent;
+const slug = s => s.toLowerCase().trim()
+  .replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
+
+function render(){
+  if(typeof marked === 'undefined'){
+    $('#doc').innerHTML = '<h1>JourneyOS — PRD</h1><p>The renderer could not load (it needs a network connection for the Markdown and diagram libraries). The full document is in <a href="PRD.md">PRD.md</a>, and the interactive UI is in <a href="ui-prototype.html">ui-prototype.html</a>.</p><pre style="white-space:pre-wrap">' +
+      src.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</pre>';
+    return;
+  }
+  marked.setOptions({gfm:true, breaks:false, headerIds:false, mangle:false});
+  let html = marked.parse(src);
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+
+  /* heading ids for the TOC */
+  wrap.querySelectorAll('h1,h2,h3').forEach(h => { if(!h.id) h.id = slug(h.textContent); });
+
+  /* wrap tables so they scroll on narrow screens */
+  wrap.querySelectorAll('table').forEach(t => {
+    const d = document.createElement('div'); d.className = 'tw';
+    t.parentNode.insertBefore(d, t); d.appendChild(t);
+  });
+
+  /* mermaid code fences become diagram containers */
+  wrap.querySelectorAll('pre > code.language-mermaid').forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'mermaid';
+    d.textContent = c.textContent;
+    c.parentNode.replaceWith(d);
+  });
+
+  $('#doc').innerHTML = wrap.innerHTML;
+  buildToc();
+  renderMermaid(false);
+}
+
+function buildToc(){
+  const toc = $('#toc');
+  const heads = [...document.querySelectorAll('#doc h2, #doc h3')];
+  heads.forEach(h => {
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.replace(/^\d+[A-Z]?\.\s*/,'');
+    if(h.tagName === 'H3') a.className = 'sub';
+    a.addEventListener('click', () => toc.classList.remove('open'));
+    toc.appendChild(a);
+  });
+
+  /* highlight the section in view */
+  const links = [...toc.querySelectorAll('a')];
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      links.forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, {rootMargin:'-80px 0px -72% 0px'});
+  heads.forEach(h => io.observe(h));
+}
+
+let mermaidCount = 0;
+function renderMermaid(rerender){
+  if(typeof mermaid === 'undefined') return;
+  const dark = root.dataset.theme !== 'light';
+  mermaid.initialize({
+    startOnLoad:false,
+    theme:'base',
+    fontFamily:"'Inter',sans-serif",
+    themeVariables: dark ? {
+      background:'transparent', primaryColor:'#161925', primaryTextColor:'#F4F5F7',
+      primaryBorderColor:'#8B5CF6', lineColor:'#6B7280', secondaryColor:'#1b2030',
+      tertiaryColor:'#141824', mainBkg:'#161925', nodeBorder:'#8B5CF6',
+      clusterBkg:'rgba(139,92,246,.07)', clusterBorder:'rgba(139,92,246,.35)',
+      titleColor:'#F4F5F7', edgeLabelBackground:'#101219', textColor:'#C9CEDA',
+      nodeTextColor:'#F4F5F7', labelTextColor:'#F4F5F7'
+    } : {
+      background:'transparent', primaryColor:'#F3F0FF', primaryTextColor:'#0F111A',
+      primaryBorderColor:'#8B5CF6', lineColor:'#8A91A0', secondaryColor:'#EAF8FB',
+      tertiaryColor:'#F7F7FA', mainBkg:'#F3F0FF', nodeBorder:'#8B5CF6',
+      clusterBkg:'rgba(139,92,246,.05)', clusterBorder:'rgba(139,92,246,.3)',
+      titleColor:'#0F111A', edgeLabelBackground:'#fff', textColor:'#55607A',
+      nodeTextColor:'#0F111A', labelTextColor:'#0F111A'
+    }
+  });
+  const nodes = [...document.querySelectorAll('.mermaid')];
+  nodes.forEach(n => {
+    if(rerender && n.dataset.src){ n.textContent = n.dataset.src; }
+    else if(!n.dataset.src){ n.dataset.src = n.textContent; }
+    n.removeAttribute('data-processed');
+  });
+  /* one at a time: a diagram that fails to parse must not blank the others */
+  const showSource = n => {
+    if(n.querySelector('svg')) return;
+    n.innerHTML = '<pre style="text-align:left;margin:0;border:0;background:none">' +
+      (n.dataset.src || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</pre>';
+  };
+  nodes.reduce(
+    (chain, n) => chain.then(() => mermaid.run({nodes:[n]}).catch(() => showSource(n))),
+    Promise.resolve()
+  );
+}
+
+window.addEventListener('load', render);
+</script>
+</body>
+</html>
