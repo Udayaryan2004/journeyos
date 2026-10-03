@@ -543,7 +543,9 @@ function Workspace() {
   const [liveScope, setLiveScope] = useState<string | null>(null);
 
   const [tab, setTab] = useState<TabKey>("itinerary");
-  const [isDesktop, setIsDesktop] = useState(false);
+  // read as an external store: a setState-in-effect here cascades renders
+  // (and eslint-config-next 16 rejects it outright)
+  const isDesktop = useSyncExternalStore(subscribeDesktop, desktopNow, desktopOnServer);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [unseen, setUnseen] = useState(0);
   const [printMode, setPrintMode] = useState(false);
@@ -558,7 +560,7 @@ function Workspace() {
 
   const [tierFilter, setTierFilter] = useState<HotelTier | "all">("all");
   const [packed, setPacked] = useState<Record<string, boolean>>({});
-  const [initial, setInitial] = useState("Y");
+  const initial = useSyncExternalStore(noSubscribe, userInitial, initialOnServer);
 
   const threadRef = useRef<HTMLDivElement | null>(null);
   const stickRef = useRef(true);
@@ -615,27 +617,9 @@ function Workspace() {
   }, [id]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const sync = () => setIsDesktop(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  useEffect(() => {
     const after = () => setPrintMode(false);
     window.addEventListener("afterprint", after);
     return () => window.removeEventListener("afterprint", after);
-  }, []);
-
-  useEffect(() => {
-    // the session cookies are httpOnly, so the avatar letter is best effort
-    try {
-      const letter = localStorage.getItem("jos-email")?.trim().slice(0, 1).toUpperCase();
-      if (letter && /[A-Z0-9]/.test(letter)) setInitial(letter);
-    } catch {
-      /* private mode */
-    }
   }, []);
 
   useEffect(
