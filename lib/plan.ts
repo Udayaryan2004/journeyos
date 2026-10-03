@@ -61,25 +61,53 @@ export function applyDefaults(trip: Trip, homeCity: string | null): { trip: Trip
     d.setDate(d.getDate() + 42);
     while (d.getDay() !== 6) d.setDate(d.getDate() + 1);
     next.startDate = d.toISOString().slice(0, 10);
-    const end = new Date(d);
-    end.setDate(end.getDate() + next.durationDays - 1);
-    next.endDate = end.toISOString().slice(0, 10);
-    assumptions.push(`Dates ${next.startDate} to ${next.endDate} — tell me your real dates and I'll re-plan`);
+    assumptions.push(`Dates starting ${next.startDate} — tell me your real dates and I'll re-plan`);
   }
 
+  /*
+   * Derive the end date whenever it is missing, not only when we invented the
+   * start. A user-supplied start with no end used to leave endDate null, which
+   * collapsed the stay to a single night and silently wrecked the budget.
+   * A "7-day trip" means 7 days on the ground: 7 calendar days, 6 nights.
+   */
+  if (next.startDate && next.durationDays && !next.endDate) {
+    const end = new Date(next.startDate + "T00:00:00Z");
+    end.setUTCDate(end.getUTCDate() + next.durationDays - 1);
+    next.endDate = end.toISOString().slice(0, 10);
+  }
+
+  /*
+   * A flat per-person-per-day default made every long-haul trip open on an
+   * overrun, because the flights alone can exceed it. Scale by whether the
+   * trip crosses a border: a London week from India starts at roughly
+   * Rs 46,000 a head in airfare before anything else.
+   */
   if (!next.budgetTotal && next.durationDays) {
     const people = next.partyAdults + next.partyChildren.length;
-    const perPersonPerDay = 11000;
+    const origin = next.originCity ? cityByKeyOrName(next.originCity) : null;
+    const international =
+      Boolean(next.destinationCountry) && next.destinationCountry !== (origin?.country ?? "IN");
+    const perPersonPerDay = international ? 18_000 : 8_000;
     next.budgetTotal = Math.round((people * next.durationDays * perPersonPerDay) / 10000) * 10000;
     assumptions.push(
       `A mid-range budget of ₹${next.budgetTotal.toLocaleString("en-IN")} — say the word if that's wrong`,
     );
   }
 
+  /*
+   * Hotel tier is about the ROOM rate, not a per-person share -- four people in
+   * one room cost the same as two. Roughly 30% of a trip budget goes on lodging,
+   * so compare that per night against real room rates.
+   */
   if (!next.hotelTier && next.budgetTotal && next.durationDays) {
-    const people = next.partyAdults + next.partyChildren.length;
-    const perNight = next.budgetTotal / Math.max(1, next.durationDays) / Math.max(1, people);
-    next.hotelTier = perNight > 9000 ? "luxury" : perNight > 3500 ? "mid" : "budget";
+    const nights = Math.max(1, next.durationDays - 1);
+    const perNight = (next.budgetTotal * 0.3) / nights;
+    /*
+     * Thresholds are calibrated against the actual room rates in the catalogue,
+     * not round numbers: a genuine five-star night runs Rs 46,000-68,000, so
+     * anything under that has to land on mid or the stay alone eats the budget.
+     */
+    next.hotelTier = perNight >= 45_000 ? "luxury" : perNight >= 12_000 ? "mid" : "budget";
   }
 
   if (next.partyChildren.some((a) => a < 7) && next.pace === "balanced") {

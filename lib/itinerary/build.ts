@@ -241,11 +241,14 @@ export function buildItinerary(input: BuildInput): ItineraryItem[] {
       startTime: hhmm(checkIn), durationMin: 45,
       travelMode: "transit", travelMinutes: 55, travelKm: 24,
     });
+    // dinner is an evening meal: never earlier than 18:30, never past 20:30,
+    // and later than check-in whenever a late landing pushes it
+    const dinner = Math.min(20.5, Math.max(hasYoungChild ? 18.5 : 19.5, checkIn + 1.5));
     push({
       dayNumber: 1, type: "meal", slot: "evening",
       title: "Dinner near your stay",
       description: "Deliberately close by — nobody wants a trek on arrival day",
-      startTime: hhmm(Math.min(20, checkIn + 2)), durationMin: 75, cost: 4200,
+      startTime: hhmm(dinner), durationMin: 75, cost: 4200,
     });
   }
 
