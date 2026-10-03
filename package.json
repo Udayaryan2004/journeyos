@@ -11,7 +11,8 @@
     "db:up": "docker start journeyos-db",
     "db:reset": "docker exec -i journeyos-db psql -U journeyos -d journeyos -v ON_ERROR_STOP=1 -f /tmp/schema.sql",
     "db:load": "docker cp schema.sql journeyos-db:/tmp/schema.sql && npm run db:reset",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "ai:check": "node scripts/ai-check.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
